@@ -198,6 +198,7 @@ def all_binary_strategies(length=3):
 def simulate(
     strategy=[1, 1, 0, 0, 0],
     start_population=[[5, 10], [5, 5], [15, 5], [15, 5], [30, 5]],
+    iterations=10
 ):
     game = Game()
     population = []
@@ -207,7 +208,7 @@ def simulate(
     game.get_state()
     s = [list(np.sum(game.state, axis=0))]
     # print(s)
-    for i in range(10):
+    for i in range(interations):
         game.update_strategies(strategy)
         game.round()
         game.get_state()
