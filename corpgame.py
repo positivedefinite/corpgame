@@ -208,10 +208,11 @@ def simulate(
     game.get_state()
     s = [list(np.sum(game.state, axis=0))]
     # print(s)
-    for i in range(interations):
+    for i in range(iterations):
         game.update_strategies(strategy)
         game.round()
         game.get_state()
         s.append(list(np.sum(game.state, axis=0)))
     population = np.array(s)
     return population
+
