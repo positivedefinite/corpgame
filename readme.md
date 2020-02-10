@@ -1,7 +1,7 @@
 # LICENSE
 AGPL v3.0
 
-![alt text](./corpgame architecture.png "Software Architecture")
+![alt text](https://github.com/positivedefinite/corpgame/blob/master/corpgame%20architecture.png "Software Architecture")
 
 
 # NASH SCALING
