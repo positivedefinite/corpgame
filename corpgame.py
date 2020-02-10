@@ -1,6 +1,8 @@
 import logging, os
 import numpy as np
 
+# following architecture guidelines from https://realpython.com/python-application-layouts/
+
 # logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 log = logging.getLogger()
 log.setLevel(logging.INFO)
@@ -78,7 +80,7 @@ class Game:
 
     def round(self):
         """
-        Play the game once
+        One round of payoff using simple assignment rule
         """
         for i in range(len(self.players)):
             p1 = self.players[i]
@@ -106,14 +108,43 @@ class Game:
                         break
             all_players = contestants + [p1]
             all_players.sort(key=lambda x: x.index)
-            # for c in all_players:
-            # print(c.index, c.company)
-            # print('\n')
-            # break
-        # for c in self.players:
-        # print(c.index, c.company)
-        # return contestants
 
+    def obj2state():
+        '''
+        Using Player objects, returns state of the game as a numpy array
+        '''
+        state = None
+        return state
+
+    def obj2policy():
+        '''
+        Using Player objects, returns policies used by them
+        '''
+        policy = None
+        return policy
+
+    def round_fractional(self, roundoff=False):
+        """
+        One round of payoff using fractional pairwise assignment on objects
+        """
+        players: list = self.players
+        for i, p1 in enumerate(players):
+            losing_type = 1 - p1.strategy
+            losing_amount = 1/(len(players)-1)*p1.company[losing_type]
+            if roundoff: losing_amount=int(losing_amount)
+            for j, p2 in enumerate(players):
+                if i != j and p1.strategy != p2.strategy:
+                    # That means conflict!
+                    #print('Player '+str(i)+' looses '+str(losing_amount)+' to Player '+str(j))
+                    p1.company[losing_type] -= losing_amount
+                    p2.company[losing_type] += losing_amount
+                    
+    def round_fractional_np(self):
+        '''
+        One round of payoff using fractional pairwise assignment on numpy
+        '''
+        return payoff
+            
     def print(self):
         for c in self.players:
             print("Player ", c.index, c.company, " score ", sum(c.company))
@@ -198,7 +229,8 @@ def all_binary_strategies(length=3):
 def simulate(
     strategy=[1, 1, 0, 0, 0],
     start_population=[[5, 10], [5, 5], [15, 5], [15, 5], [30, 5]],
-    iterations=10
+    iterations=10,
+    payoff='fractional'
 ):
     game = Game()
     population = []
@@ -206,13 +238,17 @@ def simulate(
     # game.print()
     game.update_strategies(strategy)
     game.get_state()
+    game.print()
     s = [list(np.sum(game.state, axis=0))]
     # print(s)
     for i in range(iterations):
         game.update_strategies(strategy)
-        game.round()
+        if payoff=='fractional':
+            game.round_fractional()
+        else:
+            game.round()
         game.get_state()
+        game.print()
         s.append(list(np.sum(game.state, axis=0)))
     population = np.array(s)
     return population
-
