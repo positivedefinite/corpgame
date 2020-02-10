@@ -1,6 +1,9 @@
 # LICENSE
 AGPL v3.0
 
+![alt text](./corpgame architecture.png "Software Architecture")
+
+
 # NASH SCALING
 Times that it took to find all nash equilibria by naive inspection of all strategies.
 
