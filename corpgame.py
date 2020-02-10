@@ -1,7 +1,6 @@
+# following architecture guidelines from https://realpython.com/python-application-layouts/
 import logging, os
 import numpy as np
-
-# following architecture guidelines from https://realpython.com/python-application-layouts/
 
 # logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
 log = logging.getLogger()
@@ -35,10 +34,30 @@ class Player:
         self.round_history.append(payoffs)
         return migration
 
+class Network:
+    '''
+    Stores the game state as a graph in NetworkX
+    '''
+    pass
+
+class Solver:
+    def __call__(self, state, player_index=None):
+        # if no player given, returns best solutions for all players
+        solution = None
+        return solution
+
+class Payoff:
+    def __call__(self, state, policy):
+        #for all players and given policy assing payoff
+        return payoff
 
 class Game:
     def __init__(self):
         self.players = []
+        #self.network = None
+        #self.solutions = None
+
+        # legacy, move all up there
         self.strategy = []
         self.payoff = {}
         self.state = []
@@ -230,7 +249,7 @@ def simulate(
     strategy=[1, 1, 0, 0, 0],
     start_population=[[5, 10], [5, 5], [15, 5], [15, 5], [30, 5]],
     iterations=10,
-    payoff='fractional'
+    payoff='discrete'
 ):
     game = Game()
     population = []
@@ -238,17 +257,19 @@ def simulate(
     # game.print()
     game.update_strategies(strategy)
     game.get_state()
-    game.print()
+    #game.print()
     s = [list(np.sum(game.state, axis=0))]
     # print(s)
     for i in range(iterations):
         game.update_strategies(strategy)
         if payoff=='fractional':
             game.round_fractional()
-        else:
+        elif payoff == 'discrete':
             game.round()
+        else:
+            raise Error('Wrong payoff name')
         game.get_state()
-        game.print()
+        #game.print()
         s.append(list(np.sum(game.state, axis=0)))
     population = np.array(s)
-    return population
+    return game
