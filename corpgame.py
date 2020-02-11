@@ -272,4 +272,4 @@ def simulate(
         #game.print()
         s.append(list(np.sum(game.state, axis=0)))
     population = np.array(s)
-    return game
+    return population
