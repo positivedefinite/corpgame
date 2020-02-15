@@ -223,15 +223,21 @@ class Game:
             # print(strategy, compared_strategy, base_payoff[i]<compare_payoff[i])
         return is_nash
 
-    def __call__(self, state=[[3, 0], [1, 2], [2, 1], [0, 0]], show_nash=True):
+    def __call__(self, state=[[3, 0], [1, 2], [2, 1], [0, 0]]):
         self.player_generator(state)
         self.get_payoffs()
         # print('Payoffs:', self.payoff)
+    
+    def show_nash(self):
+        is_nash = True
+        if self.nash=={}:
+            print("Nash empty!")
+            is_nash = False
         self.get_nash()
-        if show_nash == True:
-            for key in self.nash:
-                if self.nash[key] == True:
-                    print("Nash:", key, " with payoff ", self.payoff[key])
+        for key in self.nash:
+            if self.nash[key] == True:
+                print("Nash:", key, " with payoff ", self.payoff[key])
+        return is_nash
 
 
 def all_binary_strategies(length=3):

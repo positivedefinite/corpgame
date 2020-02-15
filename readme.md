@@ -1,3 +1,8 @@
+There will be 3 repositories:
+
+corporate-game (public)
+cbcm-analysis (private) linking to the game but also aggregating all resources and interests that I had
+
 # LICENSE
 AGPL v3.0
 
