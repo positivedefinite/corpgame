@@ -52,7 +52,7 @@ class Payoff:
         return payoff
 
 class Game:
-    def __init__(self):
+    def __init__(self, input_population=[[3, 0], [1, 2], [2, 1]]):
         self.players = []
         #self.network = None
         #self.solutions = None
@@ -62,6 +62,8 @@ class Game:
         self.payoff = {}
         self.state = []
         self.nash = {}
+        if input_population!=None:
+            self.player_generator(input_population=input_population)
 
     def player_generator(self, input_population=[[3, 0], [1, 2], [2, 1]]):
         """
