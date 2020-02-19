@@ -265,7 +265,7 @@ def simulate(
 ):
     game = Game()
     population = []
-    game(start_population, show_nash=False)
+    game(start_population)
     # game.print()
     game.update_strategies(strategy)
     game.get_state()
