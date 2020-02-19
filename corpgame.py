@@ -62,8 +62,7 @@ class Game:
         self.payoff = {}
         self.state = []
         self.nash = {}
-        if input_population!=None:
-            self.player_generator(input_population=input_population)
+
 
     def player_generator(self, input_population=[[3, 0], [1, 2], [2, 1]]):
         """
@@ -129,6 +128,11 @@ class Game:
                         break
             all_players = contestants + [p1]
             all_players.sort(key=lambda x: x.index)
+    def play(self, strategy_profile):
+        self.update_strategies(strategy_profile)
+        self.round()
+        self.get_payoffs()
+        self.get_state()
 
     def obj2state():
         '''
