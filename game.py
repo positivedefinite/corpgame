@@ -4,6 +4,7 @@ from logger import log
 @plac.annotations(
     start=("Some starting parameter","option","s", str)
     )
+    
 def main(start='ok'):
     print(start)
 

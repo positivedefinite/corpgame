@@ -81,7 +81,7 @@ class Game:
         if type(input_population) == list:
             for i in range(len(input_population)):
                 self.players.append(Player(input_population[i], i))
-        return self.players
+        return True
 
     def update_strategies(self, strategies=[0, 1, 1]):
         givens = strategies
