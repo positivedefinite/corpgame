@@ -6,7 +6,7 @@ class Logger(logging.Logger):
         self.handler = logging.StreamHandler(sys.stdout)
         self.handler.setLevel(logging.DEBUG)
         formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+            "%(asctime)s - %(levelname)s - %(message)s"
         )
         self.handler.setFormatter(formatter)
         self.addHandler(self.handler)
@@ -22,7 +22,7 @@ class Logger(logging.Logger):
         elif level == "warning":
             super(Logger, self).setLevel(logging.WARNING)
 
-    def setFile(self, file):
+    def setFile(self, file='logs.txt'):
         self.handlers = []
         fh = logging.FileHandler(file)
         fh.setLevel(logging.DEBUG)
