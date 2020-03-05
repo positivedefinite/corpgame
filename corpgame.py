@@ -34,11 +34,14 @@ class Player:
         self.round_history.append(payoffs)
         return migration
 
+
 class Network:
-    '''
+    """
     Stores the game state as a graph in NetworkX
-    '''
+    """
+
     pass
+
 
 class Solver:
     def __call__(self, state, player_index=None):
@@ -46,23 +49,24 @@ class Solver:
         solution = None
         return solution
 
+
 class Payoff:
     def __call__(self, state, policy):
-        #for all players and given policy assing payoff
+        # for all players and given policy assing payoff
         return payoff
+
 
 class Game:
     def __init__(self, input_population=[[3, 0], [1, 2], [2, 1]]):
         self.players = []
-        #self.network = None
-        #self.solutions = None
+        # self.network = None
+        # self.solutions = None
 
         # legacy, move all up there
         self.strategy = []
         self.payoff = {}
         self.state = []
         self.nash = {}
-
 
     def player_generator(self, input_population=[[3, 0], [1, 2], [2, 1]]):
         """
@@ -128,6 +132,7 @@ class Game:
                         break
             all_players = contestants + [p1]
             all_players.sort(key=lambda x: x.index)
+
     def play(self, strategy_profile):
         self.update_strategies(strategy_profile)
         self.round()
@@ -135,16 +140,16 @@ class Game:
         self.get_state()
 
     def obj2state():
-        '''
+        """
         Using Player objects, returns state of the game as a numpy array
-        '''
+        """
         state = None
         return state
 
     def obj2policy():
-        '''
+        """
         Using Player objects, returns policies used by them
-        '''
+        """
         policy = None
         return policy
 
@@ -155,21 +160,22 @@ class Game:
         players: list = self.players
         for i, p1 in enumerate(players):
             losing_type = 1 - p1.strategy
-            losing_amount = 1/(len(players)-1)*p1.company[losing_type]
-            if roundoff: losing_amount=int(losing_amount)
+            losing_amount = 1 / (len(players) - 1) * p1.company[losing_type]
+            if roundoff:
+                losing_amount = int(losing_amount)
             for j, p2 in enumerate(players):
                 if i != j and p1.strategy != p2.strategy:
                     # That means conflict!
-                    #print('Player '+str(i)+' looses '+str(losing_amount)+' to Player '+str(j))
+                    # print('Player '+str(i)+' looses '+str(losing_amount)+' to Player '+str(j))
                     p1.company[losing_type] -= losing_amount
                     p2.company[losing_type] += losing_amount
-                    
+
     def round_fractional_np(self):
-        '''
+        """
         One round of payoff using fractional pairwise assignment on numpy
-        '''
+        """
         return payoff
-            
+
     def print(self):
         for c in self.players:
             print("Player ", c.index, c.company, " score ", sum(c.company))
@@ -233,10 +239,10 @@ class Game:
         self.player_generator(state)
         self.get_payoffs()
         # print('Payoffs:', self.payoff)
-    
+
     def show_nash(self):
         is_nash = True
-        if self.nash=={}:
+        if self.nash == {}:
             print("Nash empty!")
             is_nash = False
         self.get_nash()
@@ -261,7 +267,7 @@ def simulate(
     strategy=[1, 1, 0, 0, 0],
     start_population=[[5, 10], [5, 5], [15, 5], [15, 5], [30, 5]],
     iterations=10,
-    payoff='discrete'
+    payoff="discrete",
 ):
     game = Game()
     population = []
@@ -269,19 +275,19 @@ def simulate(
     # game.print()
     game.update_strategies(strategy)
     game.get_state()
-    #game.print()
+    # game.print()
     s = [list(np.sum(game.state, axis=0))]
     # print(s)
     for i in range(iterations):
         game.update_strategies(strategy)
-        if payoff=='fractional':
+        if payoff == "fractional":
             game.round_fractional()
-        elif payoff == 'discrete':
+        elif payoff == "discrete":
             game.round()
         else:
-            raise Error('Wrong payoff name')
+            raise Error("Wrong payoff name")
         game.get_state()
-        #game.print()
+        # game.print()
         s.append(list(np.sum(game.state, axis=0)))
     population = np.array(s)
     return population
