@@ -1,60 +1,8 @@
 # following architecture guidelines from https://realpython.com/python-application-layouts/
-import logging, os
+import os
 import numpy as np
-
-# logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
-log = logging.getLogger()
-log.setLevel(logging.INFO)
-
-
-class Player:
-    def __init__(self, population, index=0):
-        """
-        Create a player country with a population of companies
-        """
-        self.company = [0] * len(population)
-        for i in range(len(population)):
-            self.company[i] = population[i]
-        self.strategy = [None, None]
-        self.index = index
-        self.round_history = []
-        log.debug(
-            "Created player object with population "
-            + str(self.company)
-            + " under index "
-            + str(self.index)
-        )
-
-    def __call__(self, payoffs):
-        """
-        Takes a payoff (positive or negative) and distributes it to the player
-        """
-        for i in range(len(payoffs)):
-            self.company[i] += payoffs[i]
-        self.round_history.append(payoffs)
-        return migration
-
-
-class Network:
-    """
-    Stores the game state as a graph in NetworkX
-    """
-
-    pass
-
-
-class Solver:
-    def __call__(self, state, player_index=None):
-        # if no player given, returns best solutions for all players
-        solution = None
-        return solution
-
-
-class Payoff:
-    def __call__(self, state, policy):
-        # for all players and given policy assing payoff
-        return payoff
-
+from logger import log
+from player import Player
 
 class Game:
     def __init__(self, input_population=[[3, 0], [1, 2], [2, 1]]):
@@ -238,6 +186,7 @@ class Game:
     def __call__(self, state=[[3, 0], [1, 2], [2, 1], [0, 0]]):
         self.player_generator(state)
         self.get_payoffs()
+        return True
         # print('Payoffs:', self.payoff)
 
     def show_nash(self):
