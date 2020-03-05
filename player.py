@@ -4,7 +4,7 @@ from logger import log
 
 
 class Player:
-    def __init__(self, population_vector: np.array, index=None):
+    def __init__(self, population_vector: np.array, index=None, label=None):
         """
         Create a player country with a population. 
         Players are "stupid" and don't know anything, such as who are their neighbors or what is best to do.   
@@ -12,6 +12,7 @@ class Player:
         self.population = np.array(population_vector)
         self.strategy = None
         self.index = index
+        self.label = label
         self.history = []
         log.debug(
             f"Created player object with population {str(self.population)} under index {str(self.index)}"

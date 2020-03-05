@@ -6,29 +6,32 @@ from player import Player
 
 class Game:
     def __init__(self, start_populations_matrix=[], network=None):
-        
-        self.players = []
+        self.players = None
         self.network = None
-        # self.solutions = None
-
-        # legacy, move all up there
-        self.strategy = []
-        self.payoff = {}
-        self.state = []
+        self.strategy_profile = []
+        self.payoffs = {}
+        self.state = None
         self.nash = {}
         if start_populations_matrix!=[]:
-            assert type(start_populations_matrix)==list
-            #check if all sublist are of same size
-            assert all(len(x) == len(start_populations_matrix[0]) for x in start_populations_matrix)
             self.initiate_players(start_populations_matrix=start_populations_matrix)
+            self.get_state()
 
-    def initiate_players(self, start_populations_matrix=[[3, 0], [1, 2], [2, 1]]):
+    def initiate_players(self, start_populations_matrix: list, player_names_list=None):
         """
         Adds players to the game one by one
         """
-        assert self.players == [] # make sure that there aren't any players in the game
+        assert self.players == None # make sure that there aren't any players in the game
+        assert type(start_populations_matrix)==list
+        assert all(len(x) == len(start_populations_matrix[0]) for x in start_populations_matrix)
+        players_list = []
         for i, population_vector in enumerate(start_populations_matrix):
-            self.players.append(Player(population_vector=population_vector, index=i))
+            players_list.append(Player(population_vector=population_vector, index=i))
+        self.players = players_list
+        return True
+
+    def get_state(self):
+        assert self.players != None
+        self.state = np.concatenate([[np.array(player.population) for player in self.players]])
         return True
 
     def update_strategies(self, strategies=[0, 1, 1]):
@@ -123,12 +126,6 @@ class Game:
     def print(self):
         for c in self.players:
             print("Player ", c.index, c.company, " score ", sum(c.company))
-
-    def get_state(self):
-        self.state = np.array(
-            [[c.company[0] for c in self.players], [c.company[1] for c in self.players]]
-        )
-        return self
 
     def get_payoffs(self):
         self.get_state()

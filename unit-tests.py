@@ -25,15 +25,21 @@ class TestGame(unittest.TestCase):
 
     def test_game_empty(self):
         self.assertTrue(
-            len(self.game.players) == 0, "In empty game there are not 0 players."
+            self.game.players == None, "In empty game there are no players."
         )
 
-    def test_game_state(self):
+    def test_initiate_players(self):
         self.assertTrue(
             self.game.initiate_players(start_populations_matrix=[[3, 0], [1, 2], [2, 1]]),
             "Player initiation failed",
         )
 
+    def test_get_state_array(self):
+        self.game.initiate_players(start_populations_matrix=[[3, 0], [1, 2], [2, 1]])
+        self.assertTrue(
+            self.game.get_state(),
+            "Getting state failed",
+        )
 
 if __name__ == "__main__":
     unittest.main()
