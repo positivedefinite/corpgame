@@ -6,7 +6,8 @@ from logger import log
 class Player:
     def __init__(self, population_vector: np.array, index=None):
         """
-        Create a player country with a population of companies
+        Create a player country with a population. 
+        Players are "stupid" and don't know anything, such as who are their neighbors or what is best to do.   
         """
         self.population = np.array(population_vector)
         self.strategy = None
