@@ -5,9 +5,10 @@ from logger import log
 from player import Player
 
 class Game:
-    def __init__(self, input_population=[[3, 0], [1, 2], [2, 1]]):
+    def __init__(self, start_populations_matrix=[], network=None):
+        
         self.players = []
-        # self.network = None
+        self.network = None
         # self.solutions = None
 
         # legacy, move all up there
@@ -15,24 +16,19 @@ class Game:
         self.payoff = {}
         self.state = []
         self.nash = {}
+        if start_populations_matrix!=[]:
+            assert type(start_populations_matrix)==list
+            #check if all sublist are of same size
+            assert all(len(x) == len(start_populations_matrix[0]) for x in start_populations_matrix)
+            self.initiate_players(start_populations_matrix=start_populations_matrix)
 
-    def player_generator(self, input_population=[[3, 0], [1, 2], [2, 1]]):
+    def initiate_players(self, start_populations_matrix=[[3, 0], [1, 2], [2, 1]]):
         """
         Adds players to the game one by one
         """
-        for i in range(1, len(input_population)):
-            if len(input_population[i - 1]) != len(input_population[i]):
-                error_text = (
-                    "Inconsistent population sizes for indexes "
-                    + str(i - 1)
-                    + " and "
-                    + str(i)
-                )
-                log.error(error_text)
-                raise Error(error_text)
-        if type(input_population) == list:
-            for i in range(len(input_population)):
-                self.players.append(Player(input_population[i], i))
+        assert self.players == [] # make sure that there aren't any players in the game
+        for i, population_vector in enumerate(start_populations_matrix):
+            self.players.append(Player(population_vector=population_vector, index=i))
         return True
 
     def update_strategies(self, strategies=[0, 1, 1]):
@@ -183,8 +179,7 @@ class Game:
             # print(strategy, compared_strategy, base_payoff[i]<compare_payoff[i])
         return is_nash
 
-    def __call__(self, state=[[3, 0], [1, 2], [2, 1], [0, 0]]):
-        self.player_generator(state)
+    def __call__(self):
         self.get_payoffs()
         return True
         # print('Payoffs:', self.payoff)

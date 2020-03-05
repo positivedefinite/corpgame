@@ -30,8 +30,8 @@ class TestGame(unittest.TestCase):
 
     def test_game_state(self):
         self.assertTrue(
-            self.game([[3, 0], [1, 2], [2, 1]]),
-            "Game.__call__([[3, 0], [1, 2], [2, 1]]) failed",
+            self.game.initiate_players(start_populations_matrix=[[3, 0], [1, 2], [2, 1]]),
+            "Player initiation failed",
         )
 
 
