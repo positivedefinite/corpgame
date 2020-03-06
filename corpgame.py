@@ -46,23 +46,26 @@ class PolymatrixGame(MultiplayerGame):
     def play(self, strategy_profile):
         """ wrapper method that calls: update_strategies, round, get_payoffs, get_state"""
         self.set_strategy_profile(strategy_profile)
-        self.payoff_function()
-        self.get_payoffs()
+        self.fractional()
+        #self.get_payoffs()
         self.get_state()
+
+    def pair_fractional(self, player1: Player, player2: Player, roundoff=False):
+        pass
 
     def fractional(self, roundoff=False):
         """ One round of payoff using fractional pairwise assignment on objects """
         for i, p1 in enumerate(self.players):
             losing_type = 1 - p1.strategy
-            losing_amount = 1 / (len(self.players) - 1) * p1.company[losing_type]
+            losing_amount = 1 / (len(self.players) - 1) * p1.state[losing_type]
             if roundoff:
                 losing_amount = int(losing_amount)
             for j, p2 in enumerate(self.players):
                 if i != j and p1.strategy != p2.strategy:
                     # That means conflict!
                     # print('Player '+str(i)+' looses '+str(losing_amount)+' to Player '+str(j))
-                    p1.company[losing_type] -= losing_amount
-                    p2.company[losing_type] += losing_amount
+                    p1.state[losing_type] -= losing_amount
+                    p2.state[losing_type] += losing_amount
 
     def round(self):
         """
