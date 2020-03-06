@@ -31,3 +31,4 @@ class Logger(logging.Logger):
 
 
 log = Logger("cbcm-game")
+log.setLevel('warning') # always display only warnings by default

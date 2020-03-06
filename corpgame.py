@@ -8,7 +8,7 @@ class Game:
     def __init__(self, start_populations_matrix=[], network=None):
         self.players = None
         self.network = None
-        self.strategy_profile = []
+        self.strategy_profile = None
         self.payoffs = {}
         self.state = None
         self.nash = {}
@@ -34,20 +34,12 @@ class Game:
         self.state = np.concatenate([[np.array(player.population) for player in self.players]])
         return True
 
-    def update_strategies(self, strategies=[0, 1, 1]):
-        givens = strategies
-        for i in range(len(self.players)):
-            given = givens[i]
-            if given == 1:
-                self.players[i].strategy = 1
-            elif given == 0:
-                self.players[i].strategy = 0
-            else:
-                log.error("You messed up.")
-            # print('Player '+str(i)+' holds ('+str(self.players[i].company[0])+','+str(self.players[i].company[1])+') and decides '+str(self.players[i].strategy))
-        # print('\n')
-        self.strategy = [c.strategy for c in self.players]
-        return self
+    def set_strategy_profile(self, strategy_profile=[0, 1, 1]):
+        """ Use a vector of pure strategies to assign it to players """
+        for i, strategy in enumerate(strategy_profile):
+            self.players[i].strategy = strategy
+        self.strategy_profile = [player.strategy for player in self.players]
+        return True
 
     def round(self):
         """
@@ -81,6 +73,7 @@ class Game:
             all_players.sort(key=lambda x: x.index)
 
     def play(self, strategy_profile):
+        """ wrapper method that calls: update_strategies, round, get_payoffs, get_state"""
         self.update_strategies(strategy_profile)
         self.round()
         self.get_payoffs()

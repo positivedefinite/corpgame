@@ -28,17 +28,31 @@ class TestGame(unittest.TestCase):
             self.game.players == None, "In empty game there are no players."
         )
 
-    def test_initiate_players(self):
+    def test_def_initiate_players(self):
         self.assertTrue(
             self.game.initiate_players(start_populations_matrix=[[3, 0], [1, 2], [2, 1]]),
             "Player initiation failed",
         )
 
-    def test_get_state_array(self):
+    def test_def_get_state(self):
         self.game.initiate_players(start_populations_matrix=[[3, 0], [1, 2], [2, 1]])
         self.assertTrue(
             self.game.get_state(),
             "Getting state failed",
+        )
+
+    def test_def_set_strategy_profile(self):
+        self.game.initiate_players(start_populations_matrix=[[3, 0], [1, 2], [2, 1]])
+        self.assertTrue(
+            self.game.set_strategy_profile([0, 1, 1]),
+            "Setting strategy profile failed",
+        )
+
+    def test_functionality_play_round(self):
+        self.game.initiate_players(start_populations_matrix=[[3, 0], [1, 2], [2, 1]])
+        self.game.set_strategy_profile([0, 1, 1])
+        self.assertTrue(
+            True
         )
 
 if __name__ == "__main__":
