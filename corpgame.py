@@ -1,86 +1,37 @@
 # following architecture guidelines from https://realpython.com/python-application-layouts/
-import logging, os
+import os
 import numpy as np
-
-# logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
-log = logging.getLogger()
-log.setLevel(logging.INFO)
-
-
-class Player:
-    def __init__(self, population, index=0):
-        """
-        Create a player country with a population of companies
-        """
-        self.company = [0] * len(population)
-        for i in range(len(population)):
-            self.company[i] = population[i]
-        self.strategy = [None, None]
-        self.index = index
-        self.round_history = []
-        log.debug(
-            "Created player object with population "
-            + str(self.company)
-            + " under index "
-            + str(self.index)
-        )
-
-    def __call__(self, payoffs):
-        """
-        Takes a payoff (positive or negative) and distributes it to the player
-        """
-        for i in range(len(payoffs)):
-            self.company[i] += payoffs[i]
-        self.round_history.append(payoffs)
-        return migration
-
-class Network:
-    '''
-    Stores the game state as a graph in NetworkX
-    '''
-    pass
-
-class Solver:
-    def __call__(self, state, player_index=None):
-        # if no player given, returns best solutions for all players
-        solution = None
-        return solution
-
-class Payoff:
-    def __call__(self, state, policy):
-        #for all players and given policy assing payoff
-        return payoff
+from logger import log
+from player import Player
 
 class Game:
-    def __init__(self, input_population=[[3, 0], [1, 2], [2, 1]]):
-        self.players = []
-        #self.network = None
-        #self.solutions = None
-
-        # legacy, move all up there
-        self.strategy = []
-        self.payoff = {}
-        self.state = []
+    def __init__(self, start_populations_matrix=[], network=None):
+        self.players = None
+        self.network = None
+        self.strategy_profile = []
+        self.payoffs = {}
+        self.state = None
         self.nash = {}
+        if start_populations_matrix!=[]:
+            self.initiate_players(start_populations_matrix=start_populations_matrix)
+            self.get_state()
 
-
-    def player_generator(self, input_population=[[3, 0], [1, 2], [2, 1]]):
+    def initiate_players(self, start_populations_matrix: list, player_names_list=None):
         """
         Adds players to the game one by one
         """
-        for i in range(1, len(input_population)):
-            if len(input_population[i - 1]) != len(input_population[i]):
-                error_text = (
-                    "Inconsistent population sizes for indexes "
-                    + str(i - 1)
-                    + " and "
-                    + str(i)
-                )
-                log.error(error_text)
-                raise Error(error_text)
-        if type(input_population) == list:
-            for i in range(len(input_population)):
-                self.players.append(Player(input_population[i], i))
+        assert self.players == None # make sure that there aren't any players in the game
+        assert type(start_populations_matrix)==list
+        assert all(len(x) == len(start_populations_matrix[0]) for x in start_populations_matrix)
+        players_list = []
+        for i, population_vector in enumerate(start_populations_matrix):
+            players_list.append(Player(population_vector=population_vector, index=i))
+        self.players = players_list
+        return True
+
+    def get_state(self):
+        assert self.players != None
+        self.state = np.concatenate([[np.array(player.population) for player in self.players]])
         return True
 
     def update_strategies(self, strategies=[0, 1, 1]):
@@ -128,6 +79,7 @@ class Game:
                         break
             all_players = contestants + [p1]
             all_players.sort(key=lambda x: x.index)
+
     def play(self, strategy_profile):
         self.update_strategies(strategy_profile)
         self.round()
@@ -135,16 +87,16 @@ class Game:
         self.get_state()
 
     def obj2state():
-        '''
+        """
         Using Player objects, returns state of the game as a numpy array
-        '''
+        """
         state = None
         return state
 
     def obj2policy():
-        '''
+        """
         Using Player objects, returns policies used by them
-        '''
+        """
         policy = None
         return policy
 
@@ -155,30 +107,25 @@ class Game:
         players: list = self.players
         for i, p1 in enumerate(players):
             losing_type = 1 - p1.strategy
-            losing_amount = 1/(len(players)-1)*p1.company[losing_type]
-            if roundoff: losing_amount=int(losing_amount)
+            losing_amount = 1 / (len(players) - 1) * p1.company[losing_type]
+            if roundoff:
+                losing_amount = int(losing_amount)
             for j, p2 in enumerate(players):
                 if i != j and p1.strategy != p2.strategy:
                     # That means conflict!
-                    #print('Player '+str(i)+' looses '+str(losing_amount)+' to Player '+str(j))
+                    # print('Player '+str(i)+' looses '+str(losing_amount)+' to Player '+str(j))
                     p1.company[losing_type] -= losing_amount
                     p2.company[losing_type] += losing_amount
-                    
+
     def round_fractional_np(self):
-        '''
+        """
         One round of payoff using fractional pairwise assignment on numpy
-        '''
+        """
         return payoff
-            
+
     def print(self):
         for c in self.players:
             print("Player ", c.index, c.company, " score ", sum(c.company))
-
-    def get_state(self):
-        self.state = np.array(
-            [[c.company[0] for c in self.players], [c.company[1] for c in self.players]]
-        )
-        return self
 
     def get_payoffs(self):
         self.get_state()
@@ -229,14 +176,14 @@ class Game:
             # print(strategy, compared_strategy, base_payoff[i]<compare_payoff[i])
         return is_nash
 
-    def __call__(self, state=[[3, 0], [1, 2], [2, 1], [0, 0]]):
-        self.player_generator(state)
+    def __call__(self):
         self.get_payoffs()
+        return True
         # print('Payoffs:', self.payoff)
-    
+
     def show_nash(self):
         is_nash = True
-        if self.nash=={}:
+        if self.nash == {}:
             print("Nash empty!")
             is_nash = False
         self.get_nash()
@@ -261,7 +208,7 @@ def simulate(
     strategy=[1, 1, 0, 0, 0],
     start_population=[[5, 10], [5, 5], [15, 5], [15, 5], [30, 5]],
     iterations=10,
-    payoff='discrete'
+    payoff="discrete",
 ):
     game = Game()
     population = []
@@ -269,19 +216,19 @@ def simulate(
     # game.print()
     game.update_strategies(strategy)
     game.get_state()
-    #game.print()
+    # game.print()
     s = [list(np.sum(game.state, axis=0))]
     # print(s)
     for i in range(iterations):
         game.update_strategies(strategy)
-        if payoff=='fractional':
+        if payoff == "fractional":
             game.round_fractional()
-        elif payoff == 'discrete':
+        elif payoff == "discrete":
             game.round()
         else:
-            raise Error('Wrong payoff name')
+            raise Error("Wrong payoff name")
         game.get_state()
-        #game.print()
+        # game.print()
         s.append(list(np.sum(game.state, axis=0)))
     population = np.array(s)
     return population

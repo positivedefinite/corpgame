@@ -6,7 +6,7 @@ from logger import log
     )
     
 def main(start='ok'):
-    print(start)
+    game = corpgame.Game()
 
 if __name__=="__main__":
     plac.call(main)
