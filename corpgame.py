@@ -4,7 +4,8 @@ import numpy as np
 from logger import log
 from player import Player
 
-class Game:
+class MultiplayerGame:
+    """ A multiplayer game with state of each player """
     def __init__(self, start_populations_matrix=[], network=None):
         self.players = None
         self.network = None
@@ -17,9 +18,7 @@ class Game:
             self.get_state()
 
     def initiate_players(self, start_populations_matrix: list, player_names_list=None):
-        """
-        Adds players to the game one by one
-        """
+        """ Adds players to the game one by one """
         assert self.players == None # make sure that there aren't any players in the game
         assert type(start_populations_matrix)==list
         assert all(len(x) == len(start_populations_matrix[0]) for x in start_populations_matrix)
@@ -30,8 +29,9 @@ class Game:
         return True
 
     def get_state(self):
+        """ Extract state of each player and concat them into np.array """
         assert self.players != None
-        self.state = np.concatenate([[np.array(player.population) for player in self.players]])
+        self.state = np.concatenate([[np.array(player.state) for player in self.players]])
         return True
 
     def set_strategy_profile(self, strategy_profile=[0, 1, 1]):
@@ -41,7 +41,29 @@ class Game:
         self.strategy_profile = [player.strategy for player in self.players]
         return True
 
-class PolymatrixGame(Game):
+
+class PolymatrixGame(MultiplayerGame):
+    def play(self, strategy_profile):
+        """ wrapper method that calls: update_strategies, round, get_payoffs, get_state"""
+        self.set_strategy_profile(strategy_profile)
+        self.payoff_function()
+        self.get_payoffs()
+        self.get_state()
+
+    def fractional(self, roundoff=False):
+        """ One round of payoff using fractional pairwise assignment on objects """
+        for i, p1 in enumerate(self.players):
+            losing_type = 1 - p1.strategy
+            losing_amount = 1 / (len(self.players) - 1) * p1.company[losing_type]
+            if roundoff:
+                losing_amount = int(losing_amount)
+            for j, p2 in enumerate(self.players):
+                if i != j and p1.strategy != p2.strategy:
+                    # That means conflict!
+                    # print('Player '+str(i)+' looses '+str(losing_amount)+' to Player '+str(j))
+                    p1.company[losing_type] -= losing_amount
+                    p2.company[losing_type] += losing_amount
+
     def round(self):
         """
         One round of payoff using simple assignment rule
@@ -73,13 +95,6 @@ class PolymatrixGame(Game):
             all_players = contestants + [p1]
             all_players.sort(key=lambda x: x.index)
 
-    def play(self, strategy_profile):
-        """ wrapper method that calls: update_strategies, round, get_payoffs, get_state"""
-        self.set_strategy_profile(strategy_profile)
-        self.round()
-        self.get_payoffs()
-        self.get_state()
-
     def round_dicrete_backup(self):
         """
         One round of payoff using simple assignment rule
@@ -110,43 +125,6 @@ class PolymatrixGame(Game):
                         break
             all_players = contestants + [p1]
             all_players.sort(key=lambda x: x.index)
-
-    def obj2state():
-        """
-        Using Player objects, returns state of the game as a numpy array
-        """
-        state = None
-        return state
-
-    def obj2policy():
-        """
-        Using Player objects, returns policies used by them
-        """
-        policy = None
-        return policy
-
-    def round_fractional(self, roundoff=False):
-        """
-        One round of payoff using fractional pairwise assignment on objects
-        """
-        players: list = self.players
-        for i, p1 in enumerate(players):
-            losing_type = 1 - p1.strategy
-            losing_amount = 1 / (len(players) - 1) * p1.company[losing_type]
-            if roundoff:
-                losing_amount = int(losing_amount)
-            for j, p2 in enumerate(players):
-                if i != j and p1.strategy != p2.strategy:
-                    # That means conflict!
-                    # print('Player '+str(i)+' looses '+str(losing_amount)+' to Player '+str(j))
-                    p1.company[losing_type] -= losing_amount
-                    p2.company[losing_type] += losing_amount
-
-    def round_fractional_np(self):
-        """
-        One round of payoff using fractional pairwise assignment on numpy
-        """
-        return payoff
 
     def print(self):
         for c in self.players:

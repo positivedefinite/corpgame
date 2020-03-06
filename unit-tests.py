@@ -1,16 +1,17 @@
 import unittest
-from corpgame import Game
+from corpgame import PolymatrixGame
 from player import Player
-game = Game()
+game = PolymatrixGame()
 class TestPlayer(unittest.TestCase):
     def setUp(self):
-        self.player = Player(population_vector=[1,2], index=1)
+        self.player = Player(state_vector=[1,2], index=1)
+
     def test_player_history(self):
         self.assertTrue(self.player.history==[])
 
 class TestGame(unittest.TestCase):
     def setUp(self):
-        self.game = Game()
+        self.game = PolymatrixGame()
 
     def test_object_instantiation(self):
         self.assertTrue(
@@ -19,8 +20,8 @@ class TestGame(unittest.TestCase):
 
     def test_class_type(self):
         self.assertTrue(
-            str(self.game.__class__) == "<class 'corpgame.Game'>",
-            "Type of object is not <class 'corpgame.Game'>",
+            str(self.game.__class__) == "<class 'corpgame.PolymatrixGame'>",
+            "Type of object is not <class 'corpgame.PolymatrixGame'>",
         )
 
     def test_game_empty(self):
