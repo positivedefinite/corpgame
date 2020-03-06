@@ -24,8 +24,8 @@ class Game:
         assert type(start_populations_matrix)==list
         assert all(len(x) == len(start_populations_matrix[0]) for x in start_populations_matrix)
         players_list = []
-        for i, population_vector in enumerate(start_populations_matrix):
-            players_list.append(Player(population_vector=population_vector, index=i))
+        for i, state_vector in enumerate(start_populations_matrix):
+            players_list.append(Player(state_vector=state_vector, index=i))
         self.players = players_list
         return True
 
@@ -41,11 +41,12 @@ class Game:
         self.strategy_profile = [player.strategy for player in self.players]
         return True
 
+class PolymatrixGame(Game):
     def round(self):
         """
         One round of payoff using simple assignment rule
         """
-        for i in range(len(self.players)):
+        for i, in range(len(self.players)):
             p1 = self.players[i]
             contestants = []
             # print('Player '+str(p1.index)+' with '+str(p1.company))
@@ -74,10 +75,41 @@ class Game:
 
     def play(self, strategy_profile):
         """ wrapper method that calls: update_strategies, round, get_payoffs, get_state"""
-        self.update_strategies(strategy_profile)
+        self.set_strategy_profile(strategy_profile)
         self.round()
         self.get_payoffs()
         self.get_state()
+
+    def round_dicrete_backup(self):
+        """
+        One round of payoff using simple assignment rule
+        """
+        for i, in range(len(self.players)):
+            p1 = self.players[i]
+            contestants = []
+            # print('Player '+str(p1.index)+' with '+str(p1.company))
+            for j in range(len(self.players)):
+                p2 = self.players[j]
+                if i != j and p1.strategy != p2.strategy:
+                    contestants.append(p2)
+                    # print('Contested by ' +str(p2.index)+' with strategy '+str(p2.strategy))
+            # sort first by second company to ensure tie breaking
+            losing_type = 1 - p1.strategy
+            contestants.sort(key=lambda x: x.company[p1.strategy], reverse=True)
+            contestants.sort(key=lambda x: x.company[losing_type], reverse=True)
+            contested_amount = len(contestants)
+            losing_amount = min(p1.company[losing_type], contested_amount)
+            # print('Losing '+str(losing_amount)+' of type '+str(losing_type))
+            p1.company[losing_type] -= losing_amount
+            while losing_amount > 0:
+                for i in range(len(contestants)):
+                    if losing_amount > 0:
+                        contestants[i].company[losing_type] += 1
+                        losing_amount -= 1
+                    else:
+                        break
+            all_players = contestants + [p1]
+            all_players.sort(key=lambda x: x.index)
 
     def obj2state():
         """
