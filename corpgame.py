@@ -46,27 +46,42 @@ class PolymatrixGame(MultiplayerGame):
     def play(self, strategy_profile):
         """ wrapper method that calls: update_strategies, round, get_payoffs, get_state"""
         self.set_strategy_profile(strategy_profile)
-        self.fractional()
+        self.get_payoff_matrix()
         #self.get_payoffs()
         self.get_state()
+
+    def get_payoff_matrix(self):
+        payoff_matrix = np.zeros((len(self.players),2))
+        log.debug(f"{self.__class__}.get_payoff_matrix() init {payoff_matrix}")
+        for pair in [[0,1],[1,2]]:
+            p1 = pair[0]
+            p2 = pair[1]
+            p1_payoff, p2_payoff = self.pair_fractional(p1, p2)
+            log.debug(f"{self.__class__}.get_payoff_matrix() payoffs {p1_payoff} {p2_payoff}")
+            payoff_matrix[p1]+=p1_payoff
+            payoff_matrix[p2]+=p2_payoff
+        log.debug(f"{self.__class__}.get_payoff_matrix() final {payoff_matrix}")
 
     def pair_fractional(self, player1: int, player2: int, roundoff=False):
         p1 = self.players[player1]
         p2 = self.players[player2]
+        p1_payoff= np.zeros(2)
+        p2_payoff= np.zeros(2)
         if p1.strategy!=p2.strategy:
             log.debug(f"{self.__class__}.pair_fractional() strategy pair is: ({p1.strategy},{p2.strategy})")
             p1_losing_type = [1-p1.strategy]
             p1_losing_amount = int(p1.population[p1_losing_type]*0.1)
-            p1.population[p1_losing_type] -= p1_losing_amount
-            p2.population[p1_losing_type] += p1_losing_amount
-            log.debug(f"{self.__class__}.pair_fractional() p1 loss {p1_losing_type} {p1_losing_amount} {p1.population} {p2.population}")
+            p1_payoff[p1_losing_type] -= p1_losing_amount
+            p2_payoff[p1_losing_type] += p1_losing_amount
+            log.debug(f"{self.__class__}.pair_fractional() p1 loss {p1_losing_type} {p1_losing_amount} {p1_payoff} {p2_payoff}")
             p2_losing_type = [1-p2.strategy]
             p2_losing_amount = int(p2.population[p2_losing_type]*0.1)
-            p2.population[p2_losing_type] -= p2_losing_amount
-            p1.population[p2_losing_type] += p2_losing_amount
-            log.debug(f"{self.__class__}.pair_fractional() p2 loss {p2_losing_type} {p2_losing_amount} {p1.population} {p2.population}")
+            p2_payoff[p2_losing_type] -= p2_losing_amount
+            p1_payoff[p2_losing_type] += p2_losing_amount
+            log.debug(f"{self.__class__}.pair_fractional() p2 loss {p2_losing_type} {p2_losing_amount} {p1_payoff} {p2_payoff}")
         self.get_state()
-        print(self.state)
+        assert np.all((p1_payoff+p2_payoff)==0) # check if zero sum
+        return [p1_payoff, p2_payoff]
 
     def fractional(self, roundoff=False):
         """ One round of payoff using fractional pairwise assignment on objects """
