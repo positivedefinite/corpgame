@@ -4,7 +4,7 @@ from player import Player
 game = PolymatrixGame()
 class TestPlayer(unittest.TestCase):
     def setUp(self):
-        self.player = Player(state_vector=[1,2], index=1)
+        self.player = Player(population_vector=[1,2], index=1)
 
     def test_player_history(self):
         self.assertTrue(self.player.history==[])
@@ -49,7 +49,7 @@ class TestGame(unittest.TestCase):
             "Setting strategy profile failed",
         )
 
-    def test_functionality_play_round(self):
+    def test_functionality_set_strategy_profile(self):
         self.game.initiate_players(start_populations_matrix=[[3, 0], [1, 2], [2, 1]])
         self.game.set_strategy_profile([0, 1, 1])
         self.assertTrue(

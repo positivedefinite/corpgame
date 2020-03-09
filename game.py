@@ -10,7 +10,12 @@ log.setLevel('info')
 def main(start='ok'):
     game = corpgame.PolymatrixGame()
     game.initiate_players(start_populations_matrix = [[3, 0], [1, 2], [2, 1]])
-    game.play([0,1,0])
+    game.get_state()
+    print(game.state)
+    game.set_strategy_profile([0,1,0])
+    game.pair_fractional(0,1)
+    game.get_state()
+    print(game.state)
 
 if __name__=="__main__":
     plac.call(main)

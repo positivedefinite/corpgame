@@ -5,7 +5,7 @@ from logger import log
 from player import Player
 
 class MultiplayerGame:
-    """ A multiplayer game with state of each player """
+    """ A multiplayer game with state vector for each player """
     def __init__(self, start_populations_matrix=[], network=None):
         self.players = None
         self.network = None
@@ -23,15 +23,15 @@ class MultiplayerGame:
         assert type(start_populations_matrix)==list
         assert all(len(x) == len(start_populations_matrix[0]) for x in start_populations_matrix)
         players_list = []
-        for i, state_vector in enumerate(start_populations_matrix):
-            players_list.append(Player(state_vector=state_vector, index=i))
+        for i, population_vector in enumerate(start_populations_matrix):
+            players_list.append(Player(population_vector=population_vector, index=i))
         self.players = players_list
         return True
 
     def get_state(self):
         """ Extract state of each player and concat them into np.array """
         assert self.players != None
-        self.state = np.concatenate([[np.array(player.state) for player in self.players]])
+        self.state = np.concatenate([[np.array(player.population) for player in self.players]])
         return True
 
     def set_strategy_profile(self, strategy_profile=[0, 1, 1]):
@@ -50,7 +50,19 @@ class PolymatrixGame(MultiplayerGame):
         #self.get_payoffs()
         self.get_state()
 
-    def pair_fractional(self, player1: Player, player2: Player, roundoff=False):
+    def pair_fractional(self, player1: int, player2: int, roundoff=False):
+        p1 = self.players[player1]
+        p2 = self.players[player2]
+        if p1.strategy!=p2.strategy:
+            p1_losing_type = [1-p1.strategy]
+            p1_losing_amount = p1.population[p1_losing_type]*0.1
+            p1.population[p1_losing_type] -= p1_losing_amount
+            p2.population[p1_losing_type] += p1_losing_amount
+
+            p2_losing_type = [1-p2.strategy]
+            p2_losing_amount = p2.population[p2_losing_type]*0.1
+            p2.population[p1_losing_type] -= p2_losing_amount
+            p1.population[p1_losing_type] += p2_losing_amount
         pass
 
     def fractional(self, roundoff=False):
