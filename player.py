@@ -15,7 +15,7 @@ class Player:
         self.label = label
         self.history = []
         log.debug(
-            f"Created player object with population {str(self.population)} under index {str(self.index)}"
+            f"{self.__class__}.__init__ created player indexed {str(self.index)} with population {str(self.population)}"
         )
 
     def payoff(self, payoffs_vector):
