@@ -7,17 +7,16 @@ log.setLevel("info")
 @plac.annotations(start=("Some starting parameter", "option", "s", str))
 def main(start="ok"):
     game_settings = {
-        "start_populations_matrix": [[300, 100], [100, 200], [200, 100], [10, 50]],
-        "topology": "fully_connected",
+        "start_populations_matrix": [[100, 100], [100, 100], [100, 100], [100, 100]],
+        "topology": "fully_connected"
     }
     game = corpgame.PolymatrixGame(**game_settings)
-    # game.initiate_players(start_populations_matrix = [[300, 100], [100, 200], [200, 100]])
+    log.info(f" Network edges: {game.network.edges}")
     game.play([0, 1, 0, 1])
-    print(game.state)
+    log.info(f" Game state {game.state.tolist()}")
     game.play([0, 1, 1, 1])
-    print(game.state)
-    print(game.network.edges)
-
+    log.info(f" Game state {game.state.tolist()}")
+    
 
 if __name__ == "__main__":
     plac.call(main)

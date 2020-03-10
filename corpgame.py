@@ -12,6 +12,7 @@ class MultiplayerGame:
     def __init__(self, start_populations_matrix=[], topology="fully_connected"):
         self.players = None
         self.network = None
+        self.loss_velocity = None
         self.strategy_profile = None
         self.payoff_matrix = None
         self.payoffs = {}
@@ -57,7 +58,7 @@ class MultiplayerGame:
         """ Use a vector of pure strategies to assign it to players """
         assert len(strategy_profile) == len(
             self.players
-        ), "Length of strategy_profile does not match the amount of players"
+        ), f"Length of strategy_profile {len(strategy_profile)} does not match the amount of players {len(self.players)}"
         for i, strategy in enumerate(strategy_profile):
             self.players[i].strategy = strategy
         self.strategy_profile = [player.strategy for player in self.players]
@@ -70,7 +71,6 @@ class PolymatrixGame(MultiplayerGame):
         self.set_strategy_profile(strategy_profile)
         self.get_payoff_matrix()
         self.apply_payoff_matrix()
-        # self.get_payoffs()
         self.get_state()
 
     def apply_payoff_matrix(self):
@@ -112,7 +112,7 @@ class PolymatrixGame(MultiplayerGame):
 
     def pair_fractional(self, player1: int, player2: int):
         """ Computer payoff between two players (one edge) """
-        alpha = 0.1  # 1/len(self.players)
+        alpha = 1/len(self.players)
         p1 = self.players[player1]
         p2 = self.players[player2]
         p1_payoff = np.zeros(2)
@@ -150,6 +150,14 @@ class PolymatrixGame(MultiplayerGame):
             y = int(y)
         assert y >= 0
         return y
+
+class DiscreteGame(MultiplayerGame):
+    def play(self, strategy_profile):
+        """ Wrapper method for setting a strategy profile, computing payoff and distributing it to players """
+        self.set_strategy_profile(strategy_profile)
+        self.get_payoff_matrix()
+        self.apply_payoff_matrix()
+        self.get_state()
 
     def print(self):
         for c in self.players:
