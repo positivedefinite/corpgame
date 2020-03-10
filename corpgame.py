@@ -10,6 +10,7 @@ class MultiplayerGame:
         self.players = None
         self.network = None
         self.strategy_profile = None
+        self.payoff_matrix = None
         self.payoffs = {}
         self.state = None
         self.nash = {}
@@ -47,10 +48,12 @@ class PolymatrixGame(MultiplayerGame):
         """ wrapper method that calls: update_strategies, round, get_payoffs, get_state"""
         self.set_strategy_profile(strategy_profile)
         self.get_payoff_matrix()
+        self.apply_payoff_matrix()
         #self.get_payoffs()
         self.get_state()
 
     def get_payoff_matrix(self):
+        """ Computes payoffs for all players """
         payoff_matrix = np.zeros((len(self.players),2))
         log.debug(f"{self.__class__}.get_payoff_matrix() init {payoff_matrix}")
         network_edges = [[0,1],[1,2]]
@@ -62,6 +65,14 @@ class PolymatrixGame(MultiplayerGame):
             payoff_matrix[p1]+=p1_payoff
             payoff_matrix[p2]+=p2_payoff
         log.debug(f"{self.__class__}.get_payoff_matrix() final {payoff_matrix}")
+        self.payoff_matrix = payoff_matrix
+        return self
+
+    def apply_payoff_matrix(self):
+        """ Applies payoffs to all players """
+        log.info(f"{self.__class__}.apply_payoff_matrix() using payoff matrix {list(self.payoff_matrix})")
+        for i, player in enumerate(self.players):
+            log.debug(f"{self.__class__}.apply_payoff_matrix() final {payoff_matrix}")
 
     def pair_fractional(self, player1: int, player2: int, roundoff=False):
         p1 = self.players[player1]

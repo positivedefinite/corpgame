@@ -13,8 +13,6 @@ def main(start='ok'):
     game.get_state()
     #print(game.state)
     game.play([0,1,0])
-    game.get_state()
-    #print(game.state)
 
 if __name__=="__main__":
     plac.call(main)
