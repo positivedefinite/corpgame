@@ -5,9 +5,11 @@ from logger import log
 from player import Player
 from network import Network
 
+
 class MultiplayerGame:
     """ A multiplayer game with state vector for each player """
-    def __init__(self, start_populations_matrix=[], topology='fully_connected'):
+
+    def __init__(self, start_populations_matrix=[], topology="fully_connected"):
         self.players = None
         self.network = None
         self.strategy_profile = None
@@ -15,20 +17,28 @@ class MultiplayerGame:
         self.payoffs = {}
         self.state = None
         self.nash = {}
-        if start_populations_matrix!=[]:
+        if start_populations_matrix != []:
             self.initiate_players(start_populations_matrix=start_populations_matrix)
             self.get_state()
             self.players_indices = [player.index for player in self.players]
-            log.info(f"{self.__class__}.__init__() players indexed {self.players_indices}")
-            self.network = Network(nodes = self.players_indices, topology=topology)
+            log.info(
+                f"{self.__class__}.__init__() players indexed {self.players_indices}"
+            )
+            self.network = Network(nodes=self.players_indices, topology=topology)
         else:
-            log.warning(f"{self.__class__}.__init__() players and network not initiated")
+            log.warning(
+                f"{self.__class__}.__init__() players and network not initiated"
+            )
 
     def initiate_players(self, start_populations_matrix: list, player_names_list=None):
         """ Adds players to the game one by one """
-        assert self.players == None # make sure that there aren't any players in the game
-        assert type(start_populations_matrix)==list
-        assert all(len(x) == len(start_populations_matrix[0]) for x in start_populations_matrix)
+        assert (
+            self.players == None
+        )  # make sure that there aren't any players in the game
+        assert type(start_populations_matrix) == list
+        assert all(
+            len(x) == len(start_populations_matrix[0]) for x in start_populations_matrix
+        )
         players_list = []
         for i, population_vector in enumerate(start_populations_matrix):
             players_list.append(Player(population_vector=population_vector, index=i))
@@ -38,12 +48,16 @@ class MultiplayerGame:
     def get_state(self):
         """ Extract state of each player and concat them into np.array """
         assert self.players != None
-        self.state = np.concatenate([[np.array(player.population) for player in self.players]])
+        self.state = np.concatenate(
+            [[np.array(player.population) for player in self.players]]
+        )
         return True
 
     def set_strategy_profile(self, strategy_profile=[0, 1, 1]):
         """ Use a vector of pure strategies to assign it to players """
-        assert len(strategy_profile)==len(self.players), 'Length of strategy_profile does not match the amount of players'
+        assert len(strategy_profile) == len(
+            self.players
+        ), "Length of strategy_profile does not match the amount of players"
         for i, strategy in enumerate(strategy_profile):
             self.players[i].strategy = strategy
         self.strategy_profile = [player.strategy for player in self.players]
@@ -56,63 +70,85 @@ class PolymatrixGame(MultiplayerGame):
         self.set_strategy_profile(strategy_profile)
         self.get_payoff_matrix()
         self.apply_payoff_matrix()
-        #self.get_payoffs()
+        # self.get_payoffs()
         self.get_state()
 
     def apply_payoff_matrix(self):
         """ Applies payoffs to all players """
-        log.info(f"{self.__class__}.apply_payoff_matrix() using payoff matrix {self.payoff_matrix.tolist()}")
+        log.info(
+            f"{self.__class__}.apply_payoff_matrix() using payoff matrix {self.payoff_matrix.tolist()}"
+        )
         for i, payoff in enumerate(self.payoff_matrix):
-            log.debug(f"{self.__class__}.apply_payoff_matrix() player {i} old state {self.players[i].population}")
-            log.debug(f"{self.__class__}.apply_payoff_matrix() player {i} should get {payoff}")
+            log.debug(
+                f"{self.__class__}.apply_payoff_matrix() player {i} old state {self.players[i].population}"
+            )
+            log.debug(
+                f"{self.__class__}.apply_payoff_matrix() player {i} should get {payoff}"
+            )
             self.players[i].apply_player_payoff(payoff)
-            log.debug(f"{self.__class__}.apply_payoff_matrix() player {i} new state {self.players[i].population}")
+            log.debug(
+                f"{self.__class__}.apply_payoff_matrix() player {i} new state {self.players[i].population}"
+            )
 
     def get_payoff_matrix(self):
         """ Computes payoffs for all player pairs (edges) """
-        payoff_matrix = np.zeros((len(self.players),2))
+        payoff_matrix = np.zeros((len(self.players), 2))
         log.debug(f"{self.__class__}.get_payoff_matrix() init {payoff_matrix.tolist()}")
         network_edges = self.network.edges
         for pair in network_edges:
             p1 = pair[0]
             p2 = pair[1]
             p1_payoff, p2_payoff = self.pair_fractional(p1, p2)
-            log.debug(f"{self.__class__}.get_payoff_matrix() payoffs {p1_payoff} {p2_payoff}")
-            payoff_matrix[p1]+=p1_payoff
-            payoff_matrix[p2]+=p2_payoff
-        log.debug(f"{self.__class__}.get_payoff_matrix() final {payoff_matrix.tolist()}")
+            log.debug(
+                f"{self.__class__}.get_payoff_matrix() payoffs {p1_payoff} {p2_payoff}"
+            )
+            payoff_matrix[p1] += p1_payoff
+            payoff_matrix[p2] += p2_payoff
+        log.debug(
+            f"{self.__class__}.get_payoff_matrix() final {payoff_matrix.tolist()}"
+        )
         self.payoff_matrix = payoff_matrix
         return self
 
     def pair_fractional(self, player1: int, player2: int):
         """ Computer payoff between two players (one edge) """
-        alpha = 0.1 #1/len(self.players)
+        alpha = 0.1  # 1/len(self.players)
         p1 = self.players[player1]
         p2 = self.players[player2]
-        p1_payoff= np.zeros(2)
-        p2_payoff= np.zeros(2)
-        if p1.strategy!=p2.strategy:
-            log.debug(f"{self.__class__}.pair_fractional() strategy pair is: ({p1.strategy},{p2.strategy})")
-            p1_losing_type = [1-p1.strategy]
-            p1_losing_amount = self.payoff_function(x=p1.population[p1_losing_type], alpha=alpha)
+        p1_payoff = np.zeros(2)
+        p2_payoff = np.zeros(2)
+        if p1.strategy != p2.strategy:
+            log.debug(
+                f"{self.__class__}.pair_fractional() strategy pair is: ({p1.strategy},{p2.strategy})"
+            )
+            p1_losing_type = [1 - p1.strategy]
+            p1_losing_amount = self.payoff_function(
+                x=p1.population[p1_losing_type], alpha=alpha
+            )
             p1_payoff[p1_losing_type] -= p1_losing_amount
             p2_payoff[p1_losing_type] += p1_losing_amount
-            log.debug(f"{self.__class__}.pair_fractional() p1 loss {p1_losing_type} {p1_losing_amount} {p1_payoff} {p2_payoff}")
-            p2_losing_type = [1-p2.strategy]
-            p2_losing_amount = self.payoff_function(x=p2.population[p2_losing_type], alpha=alpha)
+            log.debug(
+                f"{self.__class__}.pair_fractional() p1 loss {p1_losing_type} {p1_losing_amount} {p1_payoff} {p2_payoff}"
+            )
+            p2_losing_type = [1 - p2.strategy]
+            p2_losing_amount = self.payoff_function(
+                x=p2.population[p2_losing_type], alpha=alpha
+            )
             p2_payoff[p2_losing_type] -= p2_losing_amount
             p1_payoff[p2_losing_type] += p2_losing_amount
-            log.debug(f"{self.__class__}.pair_fractional() p2 loss {p2_losing_type} {p2_losing_amount} {p1_payoff} {p2_payoff}")
+            log.debug(
+                f"{self.__class__}.pair_fractional() p2 loss {p2_losing_type} {p2_losing_amount} {p1_payoff} {p2_payoff}"
+            )
         self.get_state()
-        assert np.all((p1_payoff+p2_payoff)==0) # check if zero sum
+        assert np.all((p1_payoff + p2_payoff) == 0)  # check if zero sum
         return [p1_payoff, p2_payoff]
 
     def payoff_function(self, x: int, alpha: float = 0.1, roundoff=True):
         """ A function that decides how much a player looses """
-        y = alpha*x
+        y = alpha * x
         if roundoff:
             y = int(y)
-        assert y>=0
+        assert y >= 0
         return y
 
     def print(self):
