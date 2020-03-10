@@ -53,7 +53,8 @@ class PolymatrixGame(MultiplayerGame):
     def get_payoff_matrix(self):
         payoff_matrix = np.zeros((len(self.players),2))
         log.debug(f"{self.__class__}.get_payoff_matrix() init {payoff_matrix}")
-        for pair in [[0,1],[1,2]]:
+        network_edges = [[0,1],[1,2]]
+        for pair in network_edges:
             p1 = pair[0]
             p2 = pair[1]
             p1_payoff, p2_payoff = self.pair_fractional(p1, p2)
