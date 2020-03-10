@@ -3,10 +3,11 @@ import os
 import numpy as np
 from logger import log
 from player import Player
+from network import Network
 
 class MultiplayerGame:
     """ A multiplayer game with state vector for each player """
-    def __init__(self, start_populations_matrix=[], network=None):
+    def __init__(self, start_populations_matrix=[], topology='fully_connected'):
         self.players = None
         self.network = None
         self.strategy_profile = None
@@ -17,6 +18,11 @@ class MultiplayerGame:
         if start_populations_matrix!=[]:
             self.initiate_players(start_populations_matrix=start_populations_matrix)
             self.get_state()
+            self.players_indices = [player.index for player in self.players]
+            log.info(f"{self.__class__}.__init__() players indexed {self.players_indices}")
+            self.network = Network(nodes = self.players_indices, topology=topology)
+        else:
+            log.warning(f"{self.__class__}.__init__() players and network not initiated")
 
     def initiate_players(self, start_populations_matrix: list, player_names_list=None):
         """ Adds players to the game one by one """
@@ -37,6 +43,7 @@ class MultiplayerGame:
 
     def set_strategy_profile(self, strategy_profile=[0, 1, 1]):
         """ Use a vector of pure strategies to assign it to players """
+        assert len(strategy_profile)==len(self.players), 'Length of strategy_profile does not match the amount of players'
         for i, strategy in enumerate(strategy_profile):
             self.players[i].strategy = strategy
         self.strategy_profile = [player.strategy for player in self.players]
@@ -65,7 +72,7 @@ class PolymatrixGame(MultiplayerGame):
         """ Computes payoffs for all player pairs (edges) """
         payoff_matrix = np.zeros((len(self.players),2))
         log.debug(f"{self.__class__}.get_payoff_matrix() init {payoff_matrix.tolist()}")
-        network_edges = [[0,1],[1,2]]
+        network_edges = self.network.edges
         for pair in network_edges:
             p1 = pair[0]
             p2 = pair[1]
