@@ -45,12 +45,21 @@ class MultiplayerGame:
 
 class PolymatrixGame(MultiplayerGame):
     def play(self, strategy_profile):
-        """ wrapper method that calls: update_strategies, round, get_payoffs, get_state"""
+        """ Wrapper method for setting a strategy profile, computing payoff and distributing it to players """
         self.set_strategy_profile(strategy_profile)
         self.get_payoff_matrix()
         self.apply_payoff_matrix()
         #self.get_payoffs()
         self.get_state()
+
+    def apply_payoff_matrix(self):
+        """ Applies payoffs to all players """
+        log.info(f"{self.__class__}.apply_payoff_matrix() using payoff matrix {self.payoff_matrix.tolist()}")
+        for i, payoff in enumerate(self.payoff_matrix):
+            log.debug(f"{self.__class__}.apply_payoff_matrix() player {i} old state {self.players[i].population}")
+            log.debug(f"{self.__class__}.apply_payoff_matrix() player {i} should get {payoff}")
+            self.players[i].apply_player_payoff(payoff)
+            log.debug(f"{self.__class__}.apply_payoff_matrix() player {i} new state {self.players[i].population}")
 
     def get_payoff_matrix(self):
         """ Computes payoffs for all players """
@@ -67,12 +76,6 @@ class PolymatrixGame(MultiplayerGame):
         log.debug(f"{self.__class__}.get_payoff_matrix() final {payoff_matrix.tolist()}")
         self.payoff_matrix = payoff_matrix
         return self
-
-    def apply_payoff_matrix(self):
-        """ Applies payoffs to all players """
-        log.info(f"{self.__class__}.apply_payoff_matrix() using payoff matrix {self.payoff_matrix.tolist()}")
-        for i, player in enumerate(self.players):
-            log.debug(f"{self.__class__}.apply_payoff_matrix() final {self.payoff_matrix.tolist()}")
 
     def pair_fractional(self, player1: int, player2: int, roundoff=False):
         p1 = self.players[player1]
@@ -94,82 +97,6 @@ class PolymatrixGame(MultiplayerGame):
         self.get_state()
         assert np.all((p1_payoff+p2_payoff)==0) # check if zero sum
         return [p1_payoff, p2_payoff]
-
-    def fractional(self, roundoff=False):
-        """ One round of payoff using fractional pairwise assignment on objects """
-        for i, p1 in enumerate(self.players):
-            losing_type = 1 - p1.strategy
-            losing_amount = 1 / (len(self.players) - 1) * p1.state[losing_type]
-            if roundoff:
-                losing_amount = int(losing_amount)
-            for j, p2 in enumerate(self.players):
-                if i != j and p1.strategy != p2.strategy:
-                    # That means conflict!
-                    # print('Player '+str(i)+' looses '+str(losing_amount)+' to Player '+str(j))
-                    p1.state[losing_type] -= losing_amount
-                    p2.state[losing_type] += losing_amount
-
-    def round(self):
-        """
-        One round of payoff using simple assignment rule
-        """
-        for i, in range(len(self.players)):
-            p1 = self.players[i]
-            contestants = []
-            # print('Player '+str(p1.index)+' with '+str(p1.company))
-            for j in range(len(self.players)):
-                p2 = self.players[j]
-                if i != j and p1.strategy != p2.strategy:
-                    contestants.append(p2)
-                    # print('Contested by ' +str(p2.index)+' with strategy '+str(p2.strategy))
-            # sort first by second company to ensure tie breaking
-            losing_type = 1 - p1.strategy
-            contestants.sort(key=lambda x: x.company[p1.strategy], reverse=True)
-            contestants.sort(key=lambda x: x.company[losing_type], reverse=True)
-            contested_amount = len(contestants)
-            losing_amount = min(p1.company[losing_type], contested_amount)
-            # print('Losing '+str(losing_amount)+' of type '+str(losing_type))
-            p1.company[losing_type] -= losing_amount
-            while losing_amount > 0:
-                for i in range(len(contestants)):
-                    if losing_amount > 0:
-                        contestants[i].company[losing_type] += 1
-                        losing_amount -= 1
-                    else:
-                        break
-            all_players = contestants + [p1]
-            all_players.sort(key=lambda x: x.index)
-
-    def round_dicrete_backup(self):
-        """
-        One round of payoff using simple assignment rule
-        """
-        for i, in range(len(self.players)):
-            p1 = self.players[i]
-            contestants = []
-            # print('Player '+str(p1.index)+' with '+str(p1.company))
-            for j in range(len(self.players)):
-                p2 = self.players[j]
-                if i != j and p1.strategy != p2.strategy:
-                    contestants.append(p2)
-                    # print('Contested by ' +str(p2.index)+' with strategy '+str(p2.strategy))
-            # sort first by second company to ensure tie breaking
-            losing_type = 1 - p1.strategy
-            contestants.sort(key=lambda x: x.company[p1.strategy], reverse=True)
-            contestants.sort(key=lambda x: x.company[losing_type], reverse=True)
-            contested_amount = len(contestants)
-            losing_amount = min(p1.company[losing_type], contested_amount)
-            # print('Losing '+str(losing_amount)+' of type '+str(losing_type))
-            p1.company[losing_type] -= losing_amount
-            while losing_amount > 0:
-                for i in range(len(contestants)):
-                    if losing_amount > 0:
-                        contestants[i].company[losing_type] += 1
-                        losing_amount -= 1
-                    else:
-                        break
-            all_players = contestants + [p1]
-            all_players.sort(key=lambda x: x.index)
 
     def print(self):
         for c in self.players:

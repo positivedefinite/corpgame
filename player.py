@@ -18,7 +18,7 @@ class Player:
             f"{self.__class__}.__init__ created player indexed {str(self.index)} with population {str(self.population)}"
         )
 
-    def payoff(self, payoffs_vector):
+    def apply_player_payoff(self, payoffs_vector: np.array):
         """
         Takes a payoff vector (positive or negative) and distributes it to the player
         """
