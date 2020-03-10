@@ -62,7 +62,7 @@ class PolymatrixGame(MultiplayerGame):
             log.debug(f"{self.__class__}.apply_payoff_matrix() player {i} new state {self.players[i].population}")
 
     def get_payoff_matrix(self):
-        """ Computes payoffs for all players """
+        """ Computes payoffs for all player pairs (edges) """
         payoff_matrix = np.zeros((len(self.players),2))
         log.debug(f"{self.__class__}.get_payoff_matrix() init {payoff_matrix.tolist()}")
         network_edges = [[0,1],[1,2]]
@@ -77,7 +77,9 @@ class PolymatrixGame(MultiplayerGame):
         self.payoff_matrix = payoff_matrix
         return self
 
-    def pair_fractional(self, player1: int, player2: int, roundoff=False):
+    def pair_fractional(self, player1: int, player2: int):
+        """ Computer payoff between two players (one edge) """
+        alpha = 0.1 #1/len(self.players)
         p1 = self.players[player1]
         p2 = self.players[player2]
         p1_payoff= np.zeros(2)
@@ -85,18 +87,26 @@ class PolymatrixGame(MultiplayerGame):
         if p1.strategy!=p2.strategy:
             log.debug(f"{self.__class__}.pair_fractional() strategy pair is: ({p1.strategy},{p2.strategy})")
             p1_losing_type = [1-p1.strategy]
-            p1_losing_amount = int(p1.population[p1_losing_type]*0.1)
+            p1_losing_amount = self.payoff_function(x=p1.population[p1_losing_type], alpha=alpha)
             p1_payoff[p1_losing_type] -= p1_losing_amount
             p2_payoff[p1_losing_type] += p1_losing_amount
             log.debug(f"{self.__class__}.pair_fractional() p1 loss {p1_losing_type} {p1_losing_amount} {p1_payoff} {p2_payoff}")
             p2_losing_type = [1-p2.strategy]
-            p2_losing_amount = int(p2.population[p2_losing_type]*0.1)
+            p2_losing_amount = self.payoff_function(x=p2.population[p2_losing_type], alpha=alpha)
             p2_payoff[p2_losing_type] -= p2_losing_amount
             p1_payoff[p2_losing_type] += p2_losing_amount
             log.debug(f"{self.__class__}.pair_fractional() p2 loss {p2_losing_type} {p2_losing_amount} {p1_payoff} {p2_payoff}")
         self.get_state()
         assert np.all((p1_payoff+p2_payoff)==0) # check if zero sum
         return [p1_payoff, p2_payoff]
+
+    def payoff_function(self, x: int, alpha: float = 0.1, roundoff=True):
+        """ A function that decides how much a player looses """
+        y = alpha*x
+        if roundoff:
+            y = int(y)
+        assert y>=0
+        return y
 
     def print(self):
         for c in self.players:
