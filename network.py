@@ -8,7 +8,7 @@ class Network:
     def __init__(self, nodes: list=None, topology='fully_connected'):
         if type(topology)==str:
             if topology=='fully_connected':
-                self.edges = self.all_pairs(nodes)
+                self.edges = [[nodes[i],nodes[j]] for i in range(len(nodes)) for j in range(i+1, len(nodes))]
             elif topology=='chain':
                 self.edges = [[nodes[i-1],nodes[i]] for i in range (1, len(nodes))]
             elif topology=='ring':
@@ -23,8 +23,3 @@ class Network:
             # taking a list of edges
             graph = nx.Graph(topology)
         self.graph = graph
-
-    def all_pairs(self, items):
-        """ retrieved from https://stackoverflow.com/questions/5360220/how-to-split-a-list-into-pairs-in-all-possible-ways"""
-        pairs = [[items[i],items[j]] for i in range(len(items)) for j in range(i+1, len(items))]
-        return pairs

@@ -14,7 +14,7 @@ def main(start='ok'):
             [100, 200], 
             [200, 100],
             [10,50]],
-        'topology' : 'star'
+        'topology' : 'fully_connected'
     }
     game = corpgame.PolymatrixGame(**game_settings)
     #game.initiate_players(start_populations_matrix = [[300, 100], [100, 200], [200, 100]])
