@@ -55,7 +55,7 @@ class PolymatrixGame(MultiplayerGame):
     def get_payoff_matrix(self):
         """ Computes payoffs for all players """
         payoff_matrix = np.zeros((len(self.players),2))
-        log.debug(f"{self.__class__}.get_payoff_matrix() init {payoff_matrix}")
+        log.debug(f"{self.__class__}.get_payoff_matrix() init {payoff_matrix.tolist()}")
         network_edges = [[0,1],[1,2]]
         for pair in network_edges:
             p1 = pair[0]
@@ -64,15 +64,15 @@ class PolymatrixGame(MultiplayerGame):
             log.debug(f"{self.__class__}.get_payoff_matrix() payoffs {p1_payoff} {p2_payoff}")
             payoff_matrix[p1]+=p1_payoff
             payoff_matrix[p2]+=p2_payoff
-        log.debug(f"{self.__class__}.get_payoff_matrix() final {payoff_matrix}")
+        log.debug(f"{self.__class__}.get_payoff_matrix() final {payoff_matrix.tolist()}")
         self.payoff_matrix = payoff_matrix
         return self
 
     def apply_payoff_matrix(self):
         """ Applies payoffs to all players """
-        log.info(f"{self.__class__}.apply_payoff_matrix() using payoff matrix {list(self.payoff_matrix)}")
+        log.info(f"{self.__class__}.apply_payoff_matrix() using payoff matrix {self.payoff_matrix.tolist()}")
         for i, player in enumerate(self.players):
-            log.debug(f"{self.__class__}.apply_payoff_matrix() final {payoff_matrix}")
+            log.debug(f"{self.__class__}.apply_payoff_matrix() final {self.payoff_matrix.tolist()}")
 
     def pair_fractional(self, player1: int, player2: int, roundoff=False):
         p1 = self.players[player1]
