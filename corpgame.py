@@ -70,7 +70,7 @@ class PolymatrixGame(MultiplayerGame):
 
     def apply_payoff_matrix(self):
         """ Applies payoffs to all players """
-        log.info(f"{self.__class__}.apply_payoff_matrix() using payoff matrix {list(self.payoff_matrix})")
+        log.info(f"{self.__class__}.apply_payoff_matrix() using payoff matrix {list(self.payoff_matrix)}")
         for i, player in enumerate(self.players):
             log.debug(f"{self.__class__}.apply_payoff_matrix() final {payoff_matrix}")
 
