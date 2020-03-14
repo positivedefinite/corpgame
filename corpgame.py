@@ -1,5 +1,5 @@
 # following architecture guidelines from https://realpython.com/python-application-layouts/
-import os
+import os, random
 import numpy as np
 from logger import log
 from player import Player
@@ -268,3 +268,17 @@ def simulate(
         s.append(list(np.sum(game.state, axis=0)))
     population = np.array(s)
     return population
+
+
+class GameManager():
+    def __init__(self, number_of_players = 3):
+        self.number_of_players = number_of_players
+        pass
+    def get_random_players(self):
+        n = self.number_of_players
+        players = [[random.randint(n, n*10),random.randint(n, n*10)] for i in range(n)]
+        return players
+    def get_random_strategy_profile(self):
+        n = self.number_of_players
+        strategy_profile = [random.randint(0,1) for i in range(n)]
+        return strategy_profile
