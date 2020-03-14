@@ -64,15 +64,6 @@ class MultiplayerGame:
         self.strategy_profile = [player.strategy for player in self.players]
         return True
 
-
-class PolymatrixGame(MultiplayerGame):
-    def play(self, strategy_profile):
-        """ Wrapper method for setting a strategy profile, computing payoff and distributing it to players """
-        self.set_strategy_profile(strategy_profile)
-        self.get_payoff_matrix()
-        self.apply_payoff_matrix()
-        self.get_state()
-
     def apply_payoff_matrix(self):
         """ Applies payoffs to all players """
         log.info(
@@ -89,6 +80,15 @@ class PolymatrixGame(MultiplayerGame):
             log.debug(
                 f"{self.__class__}.apply_payoff_matrix() player {i} new state {self.players[i].population}"
             )
+
+
+class PolymatrixGame(MultiplayerGame):
+    def play(self, strategy_profile):
+        """ Wrapper method for setting a strategy profile, computing payoff and distributing it to players """
+        self.set_strategy_profile(strategy_profile)
+        self.get_payoff_matrix()
+        self.apply_payoff_matrix()
+        self.get_state()
 
     def get_payoff_matrix(self):
         """ Computes payoffs for all player pairs (edges) """
