@@ -1,11 +1,12 @@
-import plac, corpgame
+import plac, corpgame, manager
 from logger import log
 
 log.setLevel("info")
 
 
-@plac.annotations(start=("Some starting parameter", "option", "s", str))
-def main(start="ok"):
+@plac.annotations(amount=("Amount of players", "option", "a", int))
+def main(amount=3):
+    manager.Manager.get_random_players(3)
     game_settings = {
         "start_populations_matrix": [[100, 100], [100, 100], [100, 100], [100, 100]],
         "topology": "fully_connected"
@@ -16,8 +17,8 @@ def main(start="ok"):
     log.info(f" Game state {game.state.tolist()}")
     game.play([0, 1, 1, 1])
     log.info(f" Game state {game.state.tolist()}")
-    
+    log.info(f"Simulated for {amount} players")
 
 if __name__ == "__main__":
     plac.call(main)
-    log.info("done {}".format(10))
+    
