@@ -81,6 +81,9 @@ class MultiplayerGame:
                 f"{self.__class__}.apply_payoff_matrix() player {i} new state {self.players[i].population}"
             )
 
+    @classmethod
+    def get_payoff_matrix(self):
+        return self
 
 class PolymatrixGame(MultiplayerGame):
     def play(self, strategy_profile):

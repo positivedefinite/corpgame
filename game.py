@@ -4,9 +4,9 @@ from logger import log
 log.setLevel("info")
 
 
-@plac.annotations(amount=("Amount of players", "option", "n", int))
-def main(amount=3):
-    manager = corpgame.GameManager(amount)
+@plac.annotations(number_of_players=("Amount of players", "option", "n", int))
+def main(number_of_players=3):
+    manager = corpgame.GameManager(number_of_players)
     players = manager.get_random_players()
     # players = [[100, 100], [100, 100], [100, 100], [100, 100]]
     game_settings = {
@@ -22,5 +22,5 @@ def main(amount=3):
     log.info(f"Simulated for {amount} players")
 
 if __name__ == "__main__":
-    plac.call(main)
+    plac.call(number_of_players)
     
