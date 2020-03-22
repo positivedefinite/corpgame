@@ -30,4 +30,7 @@ class Network:
         elif type(topology) == list:
             # taking a list of edges
             graph = nx.Graph(topology)
+            self.edges = graph.edges()
+        else:
+            raise "Bad topology"
         self.graph = graph
