@@ -9,7 +9,8 @@ from network import Network
 class MultiplayerGame:
     """ A multiplayer game with state vector for each player """
 
-    def __init__(self, start_populations_matrix=[], topology="fully_connected"):
+    def __init__(self, start_populations_matrix=[], topology="fully_connected", alpha=0.5):
+        self.alpha = 0.5
         self.players = None
         self.network = None
         self.loss_velocity = None
@@ -148,7 +149,8 @@ class PolymatrixGame(MultiplayerGame):
 
     def payoff_function(self, x: int, alpha: float = 0.1, roundoff=True):
         """ A function that decides how much a player looses """
-        y = alpha * x
+        # !!! alpha is overriden b self.alpha
+        y = self.alpha * x
         if roundoff:
             y = int(y)
         assert y >= 0
