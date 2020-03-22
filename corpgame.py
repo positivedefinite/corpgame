@@ -5,12 +5,11 @@ from logger import log
 from player import Player
 from network import Network
 
-
 class MultiplayerGame:
     """ A multiplayer game with state vector for each player """
 
-    def __init__(self, start_populations_matrix=[], topology="fully_connected", alpha=0.5):
-        self.alpha = 0.5
+    def __init__(self, start_populations_matrix=[], topology="fully_connected", alpha=0.5, log_level="info"):
+        self.alpha = alpha
         self.players = None
         self.network = None
         self.loss_velocity = None
@@ -19,6 +18,7 @@ class MultiplayerGame:
         self.payoffs = {}
         self.state = None
         self.nash = {}
+        log.setLevel(log_level)
         if start_populations_matrix != []:
             self.initiate_players(start_populations_matrix=start_populations_matrix)
             self.get_state()
@@ -150,7 +150,8 @@ class PolymatrixGame(MultiplayerGame):
     def payoff_function(self, x: int, alpha: float = 0.1, roundoff=True):
         """ A function that decides how much a player looses """
         # !!! alpha is overriden b self.alpha
-        y = self.alpha * x
+        y = x * self.alpha / (len(self.players)-1)
+        #print(f'Payoff function x={x},alpha={self.alpha},not rounded y={y}')
         if roundoff:
             y = int(y)
         assert y >= 0
