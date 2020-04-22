@@ -174,7 +174,7 @@ class DiscreteGame(MultiplayerGame):
         base_state = self.state.copy()
         number_of_players = len(self.players)
 
-        payoff = self.payoff
+        payoff = self.payoffs
         strategies = all_binary_strategies(length=len(self.players))
 
         for strategy in strategies:
@@ -192,6 +192,7 @@ class DiscreteGame(MultiplayerGame):
             difference = self.state - base_state
             difference = np.sum(difference, axis=0)
             payoff[str_strategy] = list(difference)
+            self.payoffs = payoff
 
     def get_nash(self):
         nash = self.nash
