@@ -119,6 +119,8 @@ def simulate(
     population = np.array(s)
     return population
 
+def strs(strategy):
+    return "".join(map(str, strategy))
 
 class GameManager:
     def __init__(self, number_of_players=3):
@@ -136,3 +138,44 @@ class GameManager:
         n = self.number_of_players
         strategy_profile = [random.randint(0, 1) for i in range(n)]
         return strategy_profile
+
+    def naive_best_reply(self, game, start_strategy, steps=5):
+        start_strategy = start_strategy
+        game.strategy_profile = start_strategy
+        game = game
+        base_state = game.state.copy()
+        strategies = all_binary_strategies(length=len(game.players))
+
+        for i in range(steps):
+            base_profile = game.strategy_profile.copy()
+            base_players = game.players.copy()
+            print(game.state)
+            
+            #computer all payoffs for this step
+            for strategy in strategies:
+                game.set_strategy_profile(strategy)
+                game.get_payoff_matrix()
+                payoff = np.sum(game.payoff_matrix, axis=1)
+                game.payoffs[strs(strategy)]=payoff.tolist()
+                game.state = base_state
+                game.players=base_players
+            game.strategy_profile=base_profile
+            print(base_profile, game.payoffs[strs(base_profile)])
+            #print(game.strategy_profile)
+            new_profile = [None]*len(game.players)
+            #print(new_profile)
+            for player in game.players:
+                #print(player.index)
+                base_payoff = game.payoffs[strs(game.strategy_profile)]
+                deviation_strategy = game.strategy_profile.copy()
+                deviation_strategy[player.index]=1-deviation_strategy[player.index]
+                print(player.index, deviation_strategy, game.payoffs[strs(deviation_strategy)])
+                deviation_payoff = game.payoffs[strs(deviation_strategy)]
+                if deviation_payoff[player.index]>base_payoff[player.index]:
+                    new_profile[player.index]=deviation_strategy[player.index]
+                else:
+                    new_profile[player.index]=base_profile[player.index]
+            #print(new_profile)
+            game.play(new_profile)
+            print(game.strategy_profile, game.payoffs[strs(game.strategy_profile)])
+            print()

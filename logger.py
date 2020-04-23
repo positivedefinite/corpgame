@@ -17,12 +17,12 @@ class Logger(logging.Logger):
     def setLevel(self, level):
         level = level.lower()
         if level == "debug":
-            super(Logger, self).setLevel(logging.DEBUG)
+            self.handlers[0].setLevel(logging.DEBUG)
         elif level == "error":
-            super(Logger, self).setLevel(logging.ERROR)
+            self.handlers[0].setLevel(logging.ERROR)
         elif level == "info":
-            super(Logger, self).setLevel(logging.INFO)
+            self.handlers[0].setLevel(logging.INFO)
         elif level == "warning":
-            super(Logger, self).setLevel(logging.WARNING)
+            self.handlers[0].setLevel(logging.WARNING)
 
 log = Logger('CbCM')
