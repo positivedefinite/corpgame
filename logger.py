@@ -4,12 +4,15 @@ class Logger(logging.Logger):
     def __init__(self, name):
         super().__init__(name, level=logging.DEBUG)
         self.handler = logging.StreamHandler(sys.stdout)
-        self.handler.setLevel(logging.DEBUG)
-        formatter = logging.Formatter(
-            "%(asctime)s - %(levelname)s - %(message)s"
-        )
+        self.handler.setLevel(logging.WARNING)
+        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
         self.handler.setFormatter(formatter)
         self.addHandler(self.handler)
+        #File output
+        fh = logging.FileHandler(f"{name}.log")
+        fh.setLevel(logging.DEBUG)
+        fh.setFormatter(logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
+        self.addHandler(fh)
 
     def setLevel(self, level):
         level = level.lower()
@@ -22,13 +25,4 @@ class Logger(logging.Logger):
         elif level == "warning":
             super(Logger, self).setLevel(logging.WARNING)
 
-    def setFile(self, file='logs.txt'):
-        self.handlers = []
-        fh = logging.FileHandler(file)
-        fh.setLevel(logging.DEBUG)
-        self.addHandler(self.handler)
-        self.addHandler(fh)
-
-
-log = Logger("cbcm-game")
-log.setLevel('warning') # always display only warnings by default
+logger = Logger('name')
