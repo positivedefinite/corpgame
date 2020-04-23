@@ -25,4 +25,4 @@ class Logger(logging.Logger):
         elif level == "warning":
             super(Logger, self).setLevel(logging.WARNING)
 
-logger = Logger('name')
+log = Logger('CbCM')
