@@ -2,6 +2,7 @@ import os
 import numpy as np
 from logger import log
 import networkx as nx
+import random
 
 
 class Network:
@@ -30,7 +31,22 @@ class Network:
         elif type(topology) == list:
             # taking a list of edges
             graph = nx.Graph(topology)
-            self.edges = graph.edges()
+            self.edges = graph.edges
         else:
             raise "Bad topology"
         self.graph = graph
+    
+    def remove_random_edge(self):
+        keep_looking = True
+        edges = list(np.random.permutation(list(self.graph.edges)))
+        if len(edges)==0:
+            raise ValueError(f"Cannot remove any more edges, the graph is probably already a spanning tree")
+        while keep_looking:
+            temp_graph = self.graph.copy()
+            temp_graph.remove_edge(*list(edges.pop(0)))
+            if nx.algorithms.components.is_connected(temp_graph):
+                self.graph = temp_graph.copy()
+                keep_looking=False
+        
+
+

@@ -7,7 +7,7 @@ from logger import log
 @plac.annotations(number_of_players=("Amount of players", "option", "n", int),
                     log_level=("Preferred level of logging", "option", "log", str),
                     timesteps=("Amount of rounds to be played", "option", "t", int))
-def main(number_of_players=3, timesteps=2, log_level="warning"):
+def main(number_of_players=3, timesteps=0, log_level="warning"):
     #log.setLevel(log_level)
     #print(log.handlers, log.handler)
     manager = corpgame.GameManager(number_of_players)
@@ -27,8 +27,10 @@ def main(number_of_players=3, timesteps=2, log_level="warning"):
         game.play(manager.get_random_strategy_profile())
         print(f" Strategy profile: {game.strategy_profile}")
         print(f" Game state {game.state.tolist()}")
-    manager.naive_best_reply(game, 3)
-
+    game.get_all_actions()
+    from pprint import pprint
+    #pprint(game.actions)
+    #pprint(game.payoffs)
 if __name__ == "__main__":
     plac.call(main)
     

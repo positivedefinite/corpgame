@@ -87,6 +87,7 @@ class MultiplayerGame:
             log.debug(
                 f"{self.__class__}.apply_payoff_matrix() player {i} new state {self.players[i].population}"
             )
+        self.get_state()
 
     @classmethod
     def get_payoff_matrix(self):

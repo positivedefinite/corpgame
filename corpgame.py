@@ -5,6 +5,7 @@ from logger import log
 from player import Player
 from network import Network
 from multiplayergame import MultiplayerGame
+from pprint import pprint
 
 
 class PolymatrixGame(MultiplayerGame):
@@ -19,7 +20,7 @@ class PolymatrixGame(MultiplayerGame):
         """ Computes payoffs for all player pairs (edges) """
         payoff_matrix = np.zeros((len(self.players), 2))
         log.debug(f"{self.__class__}.get_payoff_matrix() init {payoff_matrix.tolist()}")
-        network_edges = self.network.edges
+        network_edges = self.network.graph.edges
         for pair in network_edges:
             p1 = pair[0]
             p2 = pair[1]
@@ -77,6 +78,101 @@ class PolymatrixGame(MultiplayerGame):
             y = int(y)
         assert y >= 0
         return y
+    
+    def action_space(self):
+        """ Only use under self.analyse """
+        subdict = {'payoff_matrix':None, 'payoff':None, 'pure_nash':None}
+        self.actions = {"".join(map(str, strategy)):subdict.copy() for strategy in all_binary_strategies(len(self.players))}
+
+    def get_all_payoffs(self):
+        """ Only use under self.analyseInstance method to write self.payoffs """
+        base_players = self.players.copy()
+        base_state = self.state.copy()
+        base_profile = self.strategy_profile
+        #pprint(self.actions)
+        strategies = all_binary_strategies(length=len(self.players))
+        for strategy in strategies:
+                self.set_strategy_profile(strategy)
+                self.get_payoff_matrix()
+                self.actions[strs(strategy)]['payoff_matrix'] = self.payoff_matrix.tolist()
+                payoff = np.sum(self.payoff_matrix, axis=1)
+                self.payoffs[strs(strategy)]=payoff.tolist()
+                self.actions[strs(strategy)]['payoff']=payoff.tolist()
+                self.players = base_players
+                self.state = base_state
+                self.strategy_profile = base_profile
+        #pprint(self.payoffs)
+        return self
+    def is_strategy_nash(self, strategy):
+        """Only use under self.analyse"""
+        is_nash = True
+        base_payoff = self.payoffs[
+            "".join(map(str, strategy))
+        ]  # np.sum(self.state, axis=0)
+        for i in range(len(strategy)):
+            compared_strategy = strategy.copy()
+            compared_strategy[i] = 1 - compared_strategy[i]  # flips 1 and 0
+            compare_payoff = self.payoffs["".join(map(str, compared_strategy))]
+            if base_payoff[i] < compare_payoff[i]:
+                is_nash = False
+            # print(strategy, compared_strategy, base_payoff[i]<compare_payoff[i])
+        return is_nash
+
+    def get_pure_nash(self):
+        """ Instance method for getting pure nash """
+        strategies = all_binary_strategies(length=len(self.players))
+        self.nash = {"".join(map(str, strategy)):None for strategy in strategies}
+        for strategy in strategies:
+            str_strategy = "".join(map(str, strategy))
+            is_nash = self.is_strategy_nash(strategy)
+            self.nash[str_strategy] = is_nash
+            self.actions[str_strategy]['pure_nash'] = is_nash
+    
+    def count_nash(self):
+        self.nash_counter = 0
+        for key in self.actions:
+            if self.actions[key]['pure_nash']==True:
+                self.nash_counter += 1
+        return self.nash_counter
+    
+    def get_all_actions(self):
+        self.action_space()
+        self.get_all_payoffs()
+        self.get_pure_nash()
+        self.count_nash()
+    
+    def solve(self):
+        self.get_all_actions()
+    
+    def print_nash(self):
+        for key in self.actions:
+            if self.actions[key]['pure_nash']==True:
+                print(key)
+                pprint(self.actions[key])
+
+    def naive_best_reply(self, start_strategy):
+        """ Given a strategy vector, what would be a new vector of naive best replies? """
+        self.strategy_profile = start_strategy
+        base_players = self.players.copy()
+        base_state = self.state.copy()
+        base_profile = self.strategy_profile
+        self.get_all_payoffs()
+        print(f"Last profile {base_profile} with new payoff {self.payoffs[strs(base_profile)]}")
+        new_profile = [None]*len(self.players)
+        # check all deviations
+        for player in self.players:
+            #print(player.index)
+            base_payoff = self.payoffs[strs(self.strategy_profile)]
+            deviation_strategy = self.strategy_profile.copy()
+            deviation_strategy[player.index]=1-deviation_strategy[player.index]
+            #print(player.index, deviation_strategy, self.payoffs[strs(deviation_strategy)])
+            deviation_payoff = self.payoffs[strs(deviation_strategy)]
+            if deviation_payoff[player.index]>base_payoff[player.index]:
+                new_profile[player.index]=deviation_strategy[player.index]
+            else:
+                new_profile[player.index]=base_profile[player.index]
+        print(f"Naive best-reply profile {new_profile} with payoff {self.payoffs[strs(self.strategy_profile)]}")
+        return new_profile
 
 
 def all_binary_strategies(length=3):
@@ -130,7 +226,7 @@ class GameManager:
     def get_random_players(self):
         n = self.number_of_players
         players = [
-            [random.randint(n, n * 10), random.randint(n, n * 10)] for i in range(n)
+            [random.randint(0, n * 10), random.randint(0, n * 10)] for i in range(n)
         ]
         return players
 
@@ -138,44 +234,3 @@ class GameManager:
         n = self.number_of_players
         strategy_profile = [random.randint(0, 1) for i in range(n)]
         return strategy_profile
-
-    def naive_best_reply(self, game, start_strategy, steps=5):
-        start_strategy = start_strategy
-        game.strategy_profile = start_strategy
-        game = game
-        base_state = game.state.copy()
-        strategies = all_binary_strategies(length=len(game.players))
-
-        for i in range(steps):
-            base_profile = game.strategy_profile.copy()
-            base_players = game.players.copy()
-            print(game.state)
-            
-            #computer all payoffs for this step
-            for strategy in strategies:
-                game.set_strategy_profile(strategy)
-                game.get_payoff_matrix()
-                payoff = np.sum(game.payoff_matrix, axis=1)
-                game.payoffs[strs(strategy)]=payoff.tolist()
-                game.state = base_state
-                game.players=base_players
-            game.strategy_profile=base_profile
-            print(base_profile, game.payoffs[strs(base_profile)])
-            #print(game.strategy_profile)
-            new_profile = [None]*len(game.players)
-            #print(new_profile)
-            for player in game.players:
-                #print(player.index)
-                base_payoff = game.payoffs[strs(game.strategy_profile)]
-                deviation_strategy = game.strategy_profile.copy()
-                deviation_strategy[player.index]=1-deviation_strategy[player.index]
-                print(player.index, deviation_strategy, game.payoffs[strs(deviation_strategy)])
-                deviation_payoff = game.payoffs[strs(deviation_strategy)]
-                if deviation_payoff[player.index]>base_payoff[player.index]:
-                    new_profile[player.index]=deviation_strategy[player.index]
-                else:
-                    new_profile[player.index]=base_profile[player.index]
-            #print(new_profile)
-            game.play(new_profile)
-            print(game.strategy_profile, game.payoffs[strs(game.strategy_profile)])
-            print()
