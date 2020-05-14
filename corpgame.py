@@ -223,10 +223,10 @@ class GameManager:
         self.number_of_players = number_of_players
         pass
 
-    def get_random_players(self):
+    def get_random_players(self, lower_bound, upper_bound):
         n = self.number_of_players
         players = [
-            [random.randint(0, n * 10), random.randint(0, n * 10)] for i in range(n)
+            [random.randint(lower_bound, upper_bound), random.randint(lower_bound, upper_bound)] for i in range(n)
         ]
         return players
 
