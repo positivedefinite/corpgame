@@ -1,4 +1,5 @@
 # following architecture guidelines from https://realpython.com/python-application-layouts/
+# ! Rename module to polygame
 import os, random
 import numpy as np
 from logger import log
@@ -71,7 +72,7 @@ class PolymatrixGame(MultiplayerGame):
 
     def payoff_function(self, x: int, alpha: float = 0.1, roundoff=True):
         """ A function that decides how much a player looses """
-        # !!! alpha is overriden b self.alpha
+        # ! alpha is overriden b self.alpha
         y = x * self.alpha / (len(self.players) - 1)
         # print(f'Payoff function x={x},alpha={self.alpha},not rounded y={y}')
         if roundoff:
@@ -135,14 +136,22 @@ class PolymatrixGame(MultiplayerGame):
                 self.nash_counter += 1
         return self.nash_counter
     
+    def get_pne(self):
+        self.pne = {}
+        for key in self.actions:
+            if self.actions[key]['pure_nash']==True:
+                self.pne[key] = self.actions[key]['payoff']
+    
     def get_all_actions(self):
         self.action_space()
         self.get_all_payoffs()
         self.get_pure_nash()
         self.count_nash()
+        self.get_pne()
     
     def solve(self):
         self.get_all_actions()
+  
     
     def print_nash(self):
         for key in self.actions:
@@ -223,7 +232,7 @@ class GameManager:
         self.number_of_players = number_of_players
         pass
 
-    def get_random_players(self, lower_bound, upper_bound):
+    def get_random_players(self, lower_bound=0, upper_bound=100):
         n = self.number_of_players
         players = [
             [random.randint(lower_bound, upper_bound), random.randint(lower_bound, upper_bound)] for i in range(n)

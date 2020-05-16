@@ -5,14 +5,14 @@ from player import Player
 from network import Network
 
 
-class MultiplayerGame:
+class MultiplayerGame: # ! change to NetworkGame
     """ A multiplayer game with state vector for each player """
 
     def __init__(
         self,
         start_populations_matrix=[],
         topology="fully_connected",
-        alpha=0.5,
+        alpha=0.5, # ! REMOVE
         log_level="info",
     ):
         self.alpha = alpha

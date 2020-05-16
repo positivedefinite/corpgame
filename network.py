@@ -21,7 +21,7 @@ class Network:
             elif topology == "ring":
                 self.edges = [[nodes[i - 1], nodes[i]] for i in range(1, len(nodes))]
                 self.edges.append([nodes[-1], nodes[0]])
-            elif topology == "star":
+            elif topology == "star": # node 0 is the center
                 self.edges = [[nodes[0], nodes[i]] for i in range(1, len(nodes))]
             else:
                 raise ValueError(
@@ -37,11 +37,12 @@ class Network:
         self.graph = graph
     
     def remove_random_edge(self):
+        # TODO: label edges if their removal is found to disconnect the graph, to avoid re-visiting them ever
         keep_looking = True
         edges = list(np.random.permutation(list(self.graph.edges)))
         if len(edges)==0:
             raise ValueError(f"Cannot remove any more edges, the graph is probably already a spanning tree")
-        while keep_looking:
+        while keep_looking: # try to remove edges but only if it doesn't disconnect the graph
             temp_graph = self.graph.copy()
             temp_graph.remove_edge(*list(edges.pop(0)))
             if nx.algorithms.components.is_connected(temp_graph):

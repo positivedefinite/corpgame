@@ -22,7 +22,7 @@ class Player:
         """
         Takes a payoff vector (positive or negative) and distributes it to the player
         """
-        assert self.strategy != None
+        assert self.strategy != None, f"Player {(self.index, self.label)} doesn't have a strategy and cannot be assigned with payoff."
         assert len(payoffs_vector) == len(self.population)
         for i, payoff in enumerate(payoffs_vector):
             self.population[i] += payoff
@@ -32,6 +32,6 @@ class Player:
         return True
 
     def set_strategy(self, strategy):
-        assert self.strategy == None  # to avoid overwritting an existing strategy
+        assert self.strategy == None, f"Player {(self.index, self.label)} already has a strategy, but it was not used?"  # to avoid overwritting an existing strategy
         self.strategy = strategy
         return True
