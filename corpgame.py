@@ -10,6 +10,12 @@ from pprint import pprint
 
 
 class PolymatrixGame(MultiplayerGame):
+
+    def play_random(self):
+        n = len(self.players)
+        strategy_profile = [random.randint(0, 1) for i in range(n)]
+        self.play(strategy_profile)
+
     def play(self, strategy_profile):
         """ Wrapper method for setting a strategy profile, computing payoff and distributing it to players """
         self.set_strategy_profile(strategy_profile)
@@ -77,6 +83,9 @@ class PolymatrixGame(MultiplayerGame):
         # print(f'Payoff function x={x},alpha={self.alpha},not rounded y={y}')
         if roundoff:
             y = int(y)
+        log.debug(
+                f"{self.__class__}.payoff_function() y={y}"
+            )
         assert y >= 0
         return y
     
@@ -166,7 +175,7 @@ class PolymatrixGame(MultiplayerGame):
         base_state = self.state.copy()
         base_profile = self.strategy_profile
         self.get_all_payoffs()
-        print(f"Last profile {base_profile} with new payoff {self.payoffs[strs(base_profile)]}")
+        #print(f"Last profile {base_profile} with new payoff {self.payoffs[strs(base_profile)]}")
         new_profile = [None]*len(self.players)
         # check all deviations
         for player in self.players:
@@ -180,9 +189,20 @@ class PolymatrixGame(MultiplayerGame):
                 new_profile[player.index]=deviation_strategy[player.index]
             else:
                 new_profile[player.index]=base_profile[player.index]
-        print(f"Naive best-reply profile {new_profile} with payoff {self.payoffs[strs(self.strategy_profile)]}")
+        #print(f"Naive best-reply profile {new_profile} with payoff {self.payoffs[strs(self.strategy_profile)]}")
         return new_profile
-
+        
+    def naive_best_replies(self):
+        self.get_all_actions()
+        from collections import defaultdict
+        d = defaultdict()
+        for strategy in all_binary_strategies(len(self.players)):
+            naive_profile = self.naive_best_reply(strategy)
+            key = str(naive_profile)
+            if key not in d.keys():
+                d[key]=[]
+            d[key].append(strategy)
+        self.naive = d
 
 def all_binary_strategies(length=3):
     from itertools import product

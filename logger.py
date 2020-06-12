@@ -9,8 +9,8 @@ class Logger(logging.Logger):
         self.handler.setFormatter(formatter)
         self.addHandler(self.handler)
         #File output
-        fh = logging.FileHandler(f"{name}.log")
-        fh.setLevel(logging.DEBUG)
+        fh = logging.FileHandler(f"./data/{name}.log")
+        fh.setLevel(logging.WARNING) #change for file logging level change
         fh.setFormatter(logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
         self.addHandler(fh)
 
@@ -25,4 +25,4 @@ class Logger(logging.Logger):
         elif level == "warning":
             self.handlers[0].setLevel(logging.WARNING)
 
-log = Logger('CbCM')
+log = Logger('Corpgame')

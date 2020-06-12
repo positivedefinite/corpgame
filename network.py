@@ -42,12 +42,38 @@ class Network:
         edges = list(np.random.permutation(list(self.graph.edges)))
         if len(edges)==0:
             raise ValueError(f"Cannot remove any more edges, the graph is probably already a spanning tree")
-        while keep_looking: # try to remove edges but only if it doesn't disconnect the graph
+        while keep_looking and len(edges)>0: # try to remove edges but only if it doesn't disconnect the graph
             temp_graph = self.graph.copy()
             temp_graph.remove_edge(*list(edges.pop(0)))
             if nx.algorithms.components.is_connected(temp_graph):
                 self.graph = temp_graph.copy()
                 keep_looking=False
+
+    def add_random_edge(self):
+        def in_list(candidate, full_list):
+            for element in full_list:
+                if candidate==element:
+                    return True
+            return False
+        keep_looking = True
+        n = len(self.graph.nodes)
+        m = len(self.graph.edges)
+        if m<n*(n-1)/2: # check if it's not a complete graph already
+            edges = list(self.graph.edges)
+            nodes = list(range(0,n))
+            possible_edges = [
+                            [nodes[i], nodes[j]]
+                            for i in range(len(nodes))
+                            for j in range(i + 1, len(nodes))
+                        ]
+            temp_graph = self.graph.copy()
+            while keep_looking or len(possible_edges)!=0: # try to add edges if they're not already there
+                edge_candidate = tuple(possible_edges.pop(np.random.randint(0,len(possible_edges))))
+                #print(edge_candidate, edges, in_list(edge_candidate, edges))
+                if not in_list(edge_candidate, edges):
+                    temp_graph.add_edge(*edge_candidate)
+                    self.graph = temp_graph.copy()
+                    keep_looking=False
         
 
 
