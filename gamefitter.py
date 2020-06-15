@@ -217,7 +217,7 @@ def main(number_of_individuals=50):
             print(i, p['error'])
         if best!=population[0]['error']:
             best = population[0]['error']
-            pickle.dump(population, open(f'./data/optimization/population_chain_8_{str(best)[0:5]}.pickle','wb'))
+            pickle.dump(population, open(f'./data/optimization/population_chain_9_{str(best)[0:5]}.pickle','wb'))
         
         population = remove_clones(population)
         population.pop(np.random.randint(3,(len(population)))) #random killing
