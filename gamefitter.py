@@ -105,9 +105,9 @@ def mutate_graph(hypothesis):
     chance = True
     while chance:
         if np.random.randint(0,2)==0:
-            if len(game.network.graph.edges)>(len(game.players)-1):
+            if len(game.network.edges)>(len(game.players)-1):
                 game.network.remove_random_edge()
-                hypothesis['topology'] = list(game.network.graph.edges)
+                hypothesis['topology'] = list(game.network.edges)
         else:
             game.network.add_random_edge()
         if np.random.randint(0,2)==1:
@@ -187,8 +187,9 @@ def crossing_over(p1, p2):
 import plac, corpgame
 from logger import log
 
-@plac.annotations(number_of_individuals=("Amount of players", "option", "n", int))
-def main(number_of_individuals=50):
+@plac.annotations(number_of_individuals=("Amount of players", "option", "n", int),
+                    experiment_name=("Experiment name", "option", "name", str))
+def main(number_of_individuals=50, experiment_name="chainX"):
     best = 1000
     max_pops = number_of_individuals
     population = create_population(number_of_individuals)
@@ -217,7 +218,7 @@ def main(number_of_individuals=50):
             print(i, p['error'])
         if best!=population[0]['error']:
             best = population[0]['error']
-            pickle.dump(population, open(f'./data/optimization/population_chain_9_{str(best)[0:5]}.pickle','wb'))
+            pickle.dump(population, open(f'./data/optimization/population_{experiment_name}_{str(best)[0:5]}.pickle','wb'))
         
         population = remove_clones(population)
         population.pop(np.random.randint(3,(len(population)))) #random killing
