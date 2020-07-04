@@ -4,7 +4,6 @@ import os, random
 import numpy as np
 from logger import log
 from player import Player
-from network import Network
 from multiplayergame import MultiplayerGame
 from pprint import pprint
 

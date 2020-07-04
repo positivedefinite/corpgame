@@ -2,7 +2,7 @@ import os, random
 import numpy as np
 from logger import log
 from player import Player
-from network2 import Network
+from network import Network
 
 
 class MultiplayerGame: # ! change to NetworkGame
