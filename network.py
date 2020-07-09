@@ -66,7 +66,8 @@ class Network(nx.Graph):
                             for i in range(len(nodes))
                             for j in range(i + 1, len(nodes))
                         ]
-            while keep_looking or len(possible_edges)!=0: # try to add edges if they're not already there
+            while keep_looking and len(possible_edges)>0: # try to add edges if they're not already there
+                #print(len(possible_edges))
                 edge_candidate = tuple(possible_edges.pop(np.random.randint(0,len(possible_edges))))
                 
                 #print(edge_candidate, edges, in_list(edge_candidate, edges))

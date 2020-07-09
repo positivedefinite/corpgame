@@ -35,3 +35,10 @@ class Player:
         assert self.strategy == None, f"Player {(self.index, self.label)} already has a strategy, but it was not used?"  # to avoid overwritting an existing strategy
         self.strategy = strategy
         return True
+
+    def print(self):
+        print(f"Index: {self.index}")
+        print(f"Label: {self.label}")
+        print(f"Population: {self.population}")
+        print(f"Strategy: {self.strategy}")
+        print(f"History: {self.history}")

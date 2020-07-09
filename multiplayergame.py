@@ -11,6 +11,7 @@ class MultiplayerGame: # ! change to NetworkGame
     def __init__(
         self,
         start_populations_matrix=[],
+        player_labels = None,
         topology="fully_connected",
         alpha=0.5, # ! REMOVE
         log_level="info",
@@ -26,7 +27,7 @@ class MultiplayerGame: # ! change to NetworkGame
         self.nash = {}
         log.setLevel(log_level)
         if start_populations_matrix != []:
-            self.initiate_players(start_populations_matrix=start_populations_matrix)
+            self.initiate_players(start_populations_matrix=start_populations_matrix, player_labels=player_labels)
             self.get_state()
             self.players_indices = [player.index for player in self.players]
             log.info(
@@ -38,7 +39,7 @@ class MultiplayerGame: # ! change to NetworkGame
                 f"{self.__class__}.__init__() players and network not initiated"
             )
 
-    def initiate_players(self, start_populations_matrix: list, player_names_list=None):
+    def initiate_players(self, start_populations_matrix: list, player_labels=None):
         """ Adds players to the game one by one """
         assert (
             self.players == None
@@ -47,9 +48,13 @@ class MultiplayerGame: # ! change to NetworkGame
         assert all(
             len(x) == len(start_populations_matrix[0]) for x in start_populations_matrix
         )
+        if player_labels!=None:
+            assert len(player_labels)==len(start_populations_matrix)
         players_list = []
         for i, population_vector in enumerate(start_populations_matrix):
             players_list.append(Player(population_vector=population_vector, index=i))
+            if player_labels!=None:
+                players_list[i].label = player_labels[i]
         self.players = players_list
         return True
 
