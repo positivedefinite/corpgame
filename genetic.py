@@ -17,36 +17,24 @@ n = len(countries)
 iterations = 10 #amount of years over which the system evolves
 player_labels = countries
 
-
-def eval_fun(alpha, hypothesis):
-    hypothesis['alpha'] = alpha
-    return evaluate(hypothesis)
-
 def mutate_population(population):
     new_population = []
+    population_size = len(population)
     for k in range(0,10):
-        i = np.random.randint(0, 50)
-        j = np.random.randint(0, 50)
+        i = np.random.randint(0, population_size)
+        j = np.random.randint(0, population_size)
         new_population.append(crossing_over(population[i],population[j]))
 
     for i in range(0, 5):
         new_population.append(population[i])
         new_population.append(mutate(population[i],2))
 
-    for i in range(5, 10):
-        new_population.append(mutate(population[i],1))
-    
-    for i in range(10, 20):
-        new_population.append(mutate(population[i],2))
+    for i, p in enumerate(population):
+        new_population.append(mutate(p, i//5))
 
-    for i in range(20, 35):
-        new_population.append(mutate(population[i],3))
-
-    for i in range(35, 40):
-        new_population.append(mutate(population[i],4))
-
-    for i in range(40, 45):
-        new_population.append(mutate(population[i],5))
+    for i, p in enumerate(new_population):
+        if new_population[i]['alpha']==None:
+           new_population[i] = optimize_population(new_population[i]) 
 
     return new_population
 
@@ -89,7 +77,7 @@ def create_population(amount):
             topology = nx.erdos_renyi_graph(n,np.random.rand(1)).edges
         #print(type(topology), topology)
         memory['topology'] = list(topology)
-        memory['alpha'] = alpha
+        memory['alpha'] = None
         #optimization of alpha
         x0=[0.5]
         bnds = [(0.0, 1.0)]
@@ -101,8 +89,18 @@ def create_population(amount):
 
 def mutate(hypothesis, iterations):
     for i in range(iterations):
-        p = mutate_player(hypothesis)
-        p = mutate_graph(p)
+        hypothesis = mutate_player(hypothesis)
+        hypothesis = mutate_graph(hypothesis)
+    if iterations>0:
+        hypothesis['alpha'] = None
+        hypothesis['error'] = None
+    return p
+
+def eval_fun(alpha, hypothesis):
+    hypothesis['alpha'] = alpha
+    return evaluate(hypothesis)
+
+def optimize_population(p):
     x0=[0.5]
     bnds = [(0.0, 1.0)]
     r = scipy.optimize.minimize(eval_fun, x0, args=p, bounds=bnds, tol=0.001)
