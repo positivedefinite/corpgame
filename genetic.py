@@ -2,6 +2,7 @@ from corpgame import PolymatrixGame
 import numpy as np
 import pickle, math
 import networkx as nx
+import scipy
 
 import pandas as pd
 df = pd.read_excel('C:/Users/Kinga/OneDrive/thesis/data/cbm/july/eurostat.xlsx', encoding='utf-8', index='country')
@@ -15,6 +16,11 @@ from sklearn.metrics import mean_squared_error
 n = len(countries)
 iterations = 10 #amount of years over which the system evolves
 player_labels = countries
+
+
+def eval_fun(alpha, hypothesis):
+    hypothesis['alpha'] = alpha
+    return evaluate(hypothesis)
 
 def mutate_population(population):
     new_population = []
@@ -45,6 +51,7 @@ def mutate_population(population):
     return new_population
 
 def create_population(amount):
+    print(f"Creating {amount} new specimens")
     new_population = []
     memory = {'starting_state': None, 'strategies': None, 'alpha': None, 'error':None, 'topology':'fully_connected', 'player_labels': player_labels}
     for i in range(0, amount):
@@ -67,7 +74,6 @@ def create_population(amount):
             alpha = float(np.random.rand(1))/3
         memory['starting_state'] = list(starting_state)
         memory['strategies'] = strategies
-        memory['alpha'] = alpha
         nodes = list(range(n))
         #fully_connected
         memory['topology'] = [
@@ -83,6 +89,13 @@ def create_population(amount):
             topology = nx.erdos_renyi_graph(n,np.random.rand(1)).edges
         #print(type(topology), topology)
         memory['topology'] = list(topology)
+        memory['alpha'] = alpha
+        #optimization of alpha
+        x0=[0.5]
+        bnds = [(0.0, 1.0)]
+        r = scipy.optimize.minimize(eval_fun, x0, args=memory, bounds=bnds, tol=0.001)
+        memory['alpha'] = r['x'][0]
+        memory['error'] = r['fun']
         new_population.append(memory.copy())
     return new_population
 
@@ -90,10 +103,15 @@ def mutate(hypothesis, iterations):
     for i in range(iterations):
         p = mutate_player(hypothesis)
         p = mutate_graph(p)
-        p = mutate_alpha(p)
+    x0=[0.5]
+    bnds = [(0.0, 1.0)]
+    r = scipy.optimize.minimize(eval_fun, x0, args=p, bounds=bnds, tol=0.001)
+    p['alpha'] = r['x'][0]
+    p['error'] = r['fun']
     return p
 
 def mutate_alpha(hypothesis):
+    """ unused, as we are using exact solutions """
     if np.random.randint(0,3)==1:
         hypothesis['alpha']+=0.05-0.1*np.random.rand()
     if hypothesis['alpha']<=0 or hypothesis['alpha']>1:

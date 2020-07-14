@@ -4,12 +4,12 @@ from logger import log
 
 @plac.annotations(number_of_individuals=("Amount of players", "option", "n", int),
                     experiment_name=("Experiment name", "option", "name", str))
-def main(number_of_individuals=50, experiment_name="bigpops_1"):
+def main(number_of_individuals=50, experiment_name="bigpops_exact_1"):
     print(f"True payoff matrix:\n{df_true}")
     best = 1000
     max_pops = number_of_individuals
-    population = create_population(number_of_individuals)
-    #population = pickle.load(open('./data/optimization/population_realpops_6_10.27.pickle','rb'))
+    #population = create_population(number_of_individuals)
+    population = pickle.load(open('./data/optimization/population_bigpops_exact_1_10.93.pickle','rb'))
     #population = [population[i] for i in [0,2,6,14]]
     pairs = [
                     [i, j]
@@ -37,7 +37,7 @@ def main(number_of_individuals=50, experiment_name="bigpops_1"):
             pickle.dump(population, open(f'./data/optimization/population_{experiment_name}_{str(best)[0:5]}.pickle','wb'))
         
         population = remove_clones(population)
-        population.pop(np.random.randint(3,(len(population)))) #random killing
+        #population.pop(np.random.randint(3,(len(population)))) #random killing
         print('3. Expanding')
         population = population[0:45]
         if len(population)<max_pops:

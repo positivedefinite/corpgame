@@ -75,7 +75,7 @@ class PolymatrixGame(MultiplayerGame):
         assert np.all((p1_payoff + p2_payoff) == 0)  # check if zero sum
         return [p1_payoff, p2_payoff]
 
-    def payoff_function(self, x: int, alpha: float = 0.1, roundoff=True):
+    def payoff_function(self, x: int, alpha: float = 0.1, roundoff=False):
         """ A function that decides how much a player looses """
         # ! alpha is overriden b self.alpha
         y = x * self.alpha / (len(self.players) - 1)

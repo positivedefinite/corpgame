@@ -9,7 +9,7 @@ class Player:
         Create a player country with a population. 
         Players are "stupid" and don't know anything, such as who are their neighbors or what is best to do.   
         """
-        self.population = np.array(population_vector)
+        self.population = np.array(population_vector).astype(float)
         self.strategy = None
         self.index = index
         self.label = label
