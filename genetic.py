@@ -3,6 +3,7 @@ import numpy as np
 import pickle, math
 import networkx as nx
 import scipy
+from pprint import pprint
 
 import pandas as pd
 df = pd.read_excel('C:/Users/Kinga/OneDrive/thesis/data/cbm/july/eurostat.xlsx', encoding='utf-8', index='country')
@@ -24,7 +25,7 @@ def mutate_population(population):
         j = np.random.randint(0, population_size)
         new_population.append(crossing_over(population[i],population[j]))
 
-    for i in range(0, 5):-
+    for i in range(0, 5):
         new_population.append(population[i])
         new_population.append(mutate(population[i],2))
 
@@ -33,9 +34,10 @@ def mutate_population(population):
 
     for i, p in enumerate(new_population):
         if new_population[i]['alpha']==None:
-           new_population[i] = optimize_population(new_population[i]) 
+           new_population[i] = optimize_hypothesis(new_population[i]) 
 
     return new_population
+
 def create_population(amount_of_individuals):
     print(f"Creating {amount_of_individuals} new hypotheses")
     population = [None]*amount_of_individuals
@@ -44,9 +46,8 @@ def create_population(amount_of_individuals):
     return population
 
 def create_hypothesis():
-    memory = {'starting_state': None, 'strategies': None, 'alpha': None, 'error':None, 'topology':'fully_connected', 'PLAYER_LABELS': PLAYER_LABELS}
-    for i in range(0, amount):
-        # 1. Amount of companies
+    hypothesis = {'starting_state': None, 'strategies': None, 'alpha': None, 'error':None, 'topology':None, 'player_labels': PLAYER_LABELS}
+    def create_starting_state():
         scenario = 'real' #'simulation'
         if scenario=='real':
             starting_state = np.random.randint(0, 1, (len(PLAYER_LABELS),2))
@@ -56,43 +57,23 @@ def create_hypothesis():
                 b = companies - a
                 #print(label, companies,'=', a,'+', b)
                 starting_state[i, :] = [a,b]
-        else: 
+        elif scenario=='simulation':
             max_state = np.random.randint(1, 2000)
             starting_state = np.random.randint(0, max_state, (len(PLAYER_LABELS),2))
-        strategies = [np.random.randint(0, 2, (1, n)) for i in range(0, iterations)]
-        alpha = 0
-        while alpha<0.001:
-            alpha = float(np.random.rand(1))/3
-        memory['starting_state'] = list(starting_state)
-        memory['strategies'] = strategies
-        nodes = list(range(n))
-        #fully_connected
-        memory['topology'] = [
-                    [nodes[i], nodes[j]]
-                    for i in range(len(nodes))
-                    for j in range(i + 1, len(nodes))
-                ]
-        #chain
-        memory['topology'] = [[nodes[i - 1], nodes[i]] for i in range(1, len(nodes))]
-        #random
+        else:
+            raise ValueError(f"Unrecognized scenario {scenario}, use 'real' or 'simulation' ")
+        return list(starting_state)
+    hypothesis['starting_state'] = create_starting_state()
+    hypothesis['strategies'] = [np.random.randint(0, 2, (1, n)) for i in range(0, iterations)]
+    hypothesis['alpha'] = None
+    def create_topology():
+        #nodes = list(range(n))
         topology = []
         while len(topology)<18:
-            topology = nx.erdos_renyi_graph(n,np.random.rand(1)).edges
-        #print(type(topology), topology)
-        memory['topology'] = list(topology)
-        memory['alpha'] = None
-        #optimization of alpha
-        if eval_fun(0, memory)<eval_fun(0.001, memory):
-            memory['alpha']=0.0
-            memory['error']=eval_fun(0, memory)
-        else:
-            x0=[0.5]
-            bnds = [(0.0, 1.0)]
-            r = scipy.optimize.minimize(eval_fun, x0, args=memory, bounds=bnds, tol=0.001)
-            memory['alpha'] = r['x'][0]
-            memory['error'] = r['fun']
-            new_population.append(memory.copy())
-    return new_population
+            topology = nx.erdos_renyi_graph(n, np.random.rand(1)).edges
+        return list(topology)
+    hypothesis['topology'] = create_topology()
+    return hypothesis
 
 def mutate(hypothesis, iterations):
     for i in range(iterations):
@@ -107,7 +88,7 @@ def eval_fun(alpha, hypothesis):
     hypothesis['alpha'] = alpha
     return evaluate(hypothesis)
 
-def optimize_population(p):
+def optimize_hypothesis(p):
     x0=[0.5]
     bnds = [(0.0, 1.0)]
     r = scipy.optimize.minimize(eval_fun, x0, args=p, bounds=bnds, tol=0.001)
