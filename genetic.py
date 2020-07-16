@@ -9,23 +9,22 @@ df = pd.read_excel('C:/Users/Kinga/OneDrive/thesis/data/cbm/july/eurostat.xlsx',
 df = df.set_index('country')
 
 df_true = pd.read_csv('C:/Users/Kinga/OneDrive/thesis/data/cbm/payoffs.csv')
-countries = list(df_true['Unnamed: 0'])
+PLAYER_LABELS = list(df_true['Unnamed: 0'])
 y_true = df_true.drop(columns='Unnamed: 0').values
 
 from sklearn.metrics import mean_squared_error
-n = len(countries)
+n = len(PLAYER_LABELS)
 iterations = 10 #amount of years over which the system evolves
-player_labels = countries
 
 def mutate_population(population):
     new_population = []
-    population_size = len(population)
-    for k in range(0,10):
+    population_size = len(population)   
+    for k in range(0,10):       
         i = np.random.randint(0, population_size)
         j = np.random.randint(0, population_size)
         new_population.append(crossing_over(population[i],population[j]))
 
-    for i in range(0, 5):
+    for i in range(0, 5):-
         new_population.append(population[i])
         new_population.append(mutate(population[i],2))
 
@@ -37,17 +36,21 @@ def mutate_population(population):
            new_population[i] = optimize_population(new_population[i]) 
 
     return new_population
+def create_population(amount_of_individuals):
+    print(f"Creating {amount_of_individuals} new hypotheses")
+    population = [None]*amount_of_individuals
+    for i in range(amount_of_individuals):
+        population[i] = create_hypothesis()
+    return population
 
-def create_population(amount):
-    print(f"Creating {amount} new specimens")
-    new_population = []
-    memory = {'starting_state': None, 'strategies': None, 'alpha': None, 'error':None, 'topology':'fully_connected', 'player_labels': player_labels}
+def create_hypothesis():
+    memory = {'starting_state': None, 'strategies': None, 'alpha': None, 'error':None, 'topology':'fully_connected', 'PLAYER_LABELS': PLAYER_LABELS}
     for i in range(0, amount):
         # 1. Amount of companies
         scenario = 'real' #'simulation'
         if scenario=='real':
-            starting_state = np.random.randint(0, 1, (len(player_labels),2))
-            for i, label in enumerate(player_labels):
+            starting_state = np.random.randint(0, 1, (len(PLAYER_LABELS),2))
+            for i, label in enumerate(PLAYER_LABELS):
                 companies = df.loc[label, '2009']
                 a = np.random.randint(0, companies)
                 b = companies - a
@@ -55,7 +58,7 @@ def create_population(amount):
                 starting_state[i, :] = [a,b]
         else: 
             max_state = np.random.randint(1, 2000)
-            starting_state = np.random.randint(0, max_state, (len(player_labels),2))
+            starting_state = np.random.randint(0, max_state, (len(PLAYER_LABELS),2))
         strategies = [np.random.randint(0, 2, (1, n)) for i in range(0, iterations)]
         alpha = 0
         while alpha<0.001:
@@ -79,12 +82,16 @@ def create_population(amount):
         memory['topology'] = list(topology)
         memory['alpha'] = None
         #optimization of alpha
-        x0=[0.5]
-        bnds = [(0.0, 1.0)]
-        r = scipy.optimize.minimize(eval_fun, x0, args=memory, bounds=bnds, tol=0.001)
-        memory['alpha'] = r['x'][0]
-        memory['error'] = r['fun']
-        new_population.append(memory.copy())
+        if eval_fun(0, memory)<eval_fun(0.001, memory):
+            memory['alpha']=0.0
+            memory['error']=eval_fun(0, memory)
+        else:
+            x0=[0.5]
+            bnds = [(0.0, 1.0)]
+            r = scipy.optimize.minimize(eval_fun, x0, args=memory, bounds=bnds, tol=0.001)
+            memory['alpha'] = r['x'][0]
+            memory['error'] = r['fun']
+            new_population.append(memory.copy())
     return new_population
 
 def mutate(hypothesis, iterations):
@@ -94,7 +101,7 @@ def mutate(hypothesis, iterations):
     if iterations>0:
         hypothesis['alpha'] = None
         hypothesis['error'] = None
-    return p
+    return hypothesis
 
 def eval_fun(alpha, hypothesis):
     hypothesis['alpha'] = alpha

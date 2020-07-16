@@ -4,12 +4,12 @@ from logger import log
 
 @plac.annotations(number_of_individuals=("Amount of players", "option", "n", int),
                     experiment_name=("Experiment name", "option", "name", str))
-def main(number_of_individuals=50, experiment_name="bigpops_exact_1"):
+def main(number_of_individuals=50, experiment_name="bigpops_exact_2"):
     print(f"True payoff matrix:\n{df_true}")
     best = 1000
     max_pops = number_of_individuals
-    #population = create_population(number_of_individuals)
-    population = pickle.load(open('./data/optimization/population_bigpops_exact_1_10.93.pickle','rb'))
+    population = create_population(number_of_individuals)
+    #population = pickle.load(open('./data/optimization/population_bigpops_exact_1_10.91.pickle','rb'))
     #population = [population[i] for i in [0,2,6,14]]
     pairs = [
                     [i, j]
@@ -31,7 +31,7 @@ def main(number_of_individuals=50, experiment_name="bigpops_exact_1"):
         population.sort(key=lambda x: x['error'])
         print('TOP 10 Error rates:')
         for i, p in enumerate(population[0:10]):
-            print(i, p['error'])
+            print(f"{i} {p['error']} for alpha {p['alpha']}"    )
         if best!=population[0]['error']:
             best = population[0]['error']
             pickle.dump(population, open(f'./data/optimization/population_{experiment_name}_{str(best)[0:5]}.pickle','wb'))
