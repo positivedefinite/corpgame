@@ -3,6 +3,8 @@ import numpy as np
 from logger import log
 from player import Player
 from network import Network
+from collections import defaultdict
+import itertools
 
 
 class MultiplayerGame: # ! change to NetworkGame
@@ -38,6 +40,10 @@ class MultiplayerGame: # ! change to NetworkGame
             log.warning(
                 f"{self.__class__}.__init__() players and network not initiated"
             )
+        self.edge_payoffs = defaultdict()
+        for edge in itertools.permutations(player_labels,2):
+            self.edge_payoffs[edge]=0
+
 
     def initiate_players(self, start_populations_matrix: list, player_labels=None):
         """ Adds players to the game one by one """

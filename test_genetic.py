@@ -1,7 +1,8 @@
 from genetic import *
 import time
-populations = []
 best = 12
+populations = pickle.load(open(f'./data/optimization/population_random_10.70 - Copy.pickle','rb'))
+print(f'AMount of populatoins {len(populations)}')
 T = []
 counter = 0
 while True:
