@@ -6,6 +6,8 @@ from logger import log
 from player import Player
 from multiplayergame import MultiplayerGame
 from pprint import pprint
+import itertools
+from collections import defaultdict
 
 
 class PolymatrixGame(MultiplayerGame):
@@ -21,6 +23,18 @@ class PolymatrixGame(MultiplayerGame):
         self.get_payoff_matrix()
         self.apply_payoff_matrix()
         self.get_state()
+
+    def get_edge_payoffs(self):
+        print(self.edge_payoffs)
+        edge_dict = self.edge_payoffs
+        for edge in edge_dict:
+            print(edge)
+            s = sum(edge_dict[edge])
+            if s>0:
+                edge_dict[edge] = s
+            else:
+                edge_dict[edge] = 0
+        self.edge_payoffs = edge_dict
 
     def get_payoff_matrix(self):
         """ Computes payoffs for all player pairs (edges) """
@@ -73,6 +87,8 @@ class PolymatrixGame(MultiplayerGame):
             )
         self.get_state()
         assert np.all((p1_payoff + p2_payoff) == 0)  # check if zero sum
+        self.edge_payoffs[(p1.label, p2.label)]=p2_payoff
+        self.edge_payoffs[(p2.label, p1.label)]=p1_payoff
         return [p1_payoff, p2_payoff]
 
     def payoff_function(self, x: int, alpha: float = 0.1, roundoff=False):

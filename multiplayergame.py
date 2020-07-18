@@ -41,9 +41,8 @@ class MultiplayerGame: # ! change to NetworkGame
                 f"{self.__class__}.__init__() players and network not initiated"
             )
         self.edge_payoffs = defaultdict()
-        for edge in itertools.permutations(player_labels,2):
-            self.edge_payoffs[edge]=0
-
+        for edge in itertools.permutations(player_labels, 2):
+            self.edge_payoffs[edge]=0 #! this creates new dictionary keys!
 
     def initiate_players(self, start_populations_matrix: list, player_labels=None):
         """ Adds players to the game one by one """
