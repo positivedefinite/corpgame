@@ -26,7 +26,7 @@ def main(number_of_individuals=50, experiment_name="bigpops_exact_2"):
             if i%5==0:
                 print(f"{i}/{len(population)}")
             if population[i]['error'] == None:
-                population[i]['error'] = evaluate(p)
+                population[i]['error'] = evaluate_edge(p)
         print('2. Sorting')
         population.sort(key=lambda x: x['error'])
         print('TOP 10 Error rates:')

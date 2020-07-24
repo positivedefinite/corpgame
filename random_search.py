@@ -1,8 +1,9 @@
 from genetic import *
 import time
-best = 12
-populations = pickle.load(open(f'./data/optimization/population_random_10.79.pickle','rb'))
-print(f'AMount of populatoins {len(populations)}')
+best = 3
+#populations = pickle.load(open(f'./data/optimization/population_random_2.829.pickle','rb'))
+populations = []
+print(f'Amount of populations loaded from memory {len(populations)}')
 T = []
 counter = 0
 while True:
@@ -20,4 +21,4 @@ while True:
     T.append(t)
     print(f"{r['fun']} for alpha={r['x'][0]} in time {t} and mean time {sum(T)/counter} and total time {sum(T)} while best = {best} ")
     populations.append(p)
-    pickle.dump(populations, open(f'./data/optimization/population_random_{str(best)[0:5]}.pickle','wb'))
+    pickle.dump(populations, open(f'./data/optimization/population_random_edges_{str(best)[0:5]}.pickle','wb'))

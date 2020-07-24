@@ -1,19 +1,15 @@
 from corpgame import PolymatrixGame
+from evaluation import *
 import numpy as np
 import pickle, math
 import networkx as nx
 import scipy
 from pprint import pprint
-
+from sklearn.metrics import mean_squared_error
 import pandas as pd
 df = pd.read_excel('C:/Users/Kinga/OneDrive/thesis/data/cbm/july/eurostat.xlsx', encoding='utf-8', index='country')
 df = df.set_index('country')
 
-df_true = pd.read_csv('C:/Users/Kinga/OneDrive/thesis/data/cbm/payoffs.csv')
-PLAYER_LABELS = list(df_true['Unnamed: 0'])
-y_true = df_true.drop(columns='Unnamed: 0').values
-
-from sklearn.metrics import mean_squared_error
 n = len(PLAYER_LABELS)
 iterations = 10 #amount of years over which the system evolves
 
@@ -86,7 +82,7 @@ def mutate(hypothesis, iterations):
 
 def eval_fun(alpha, hypothesis):
     hypothesis['alpha'] = alpha
-    return evaluate(hypothesis)
+    return evaluate_edge(hypothesis) #! evaluate() for net values
 
 def optimize_hypothesis(p):
     x0=[0.5]
@@ -139,26 +135,6 @@ def mutate_player(hypothesis):
             p['strategies'][i][0][mutation_location]=1-p['strategies'][i][0][mutation_location]
     p['error']=None
     return p
-
-def evaluate(hypothesis):
-        strategies = hypothesis['strategies']
-        game_settings = {
-            "start_populations_matrix": hypothesis['starting_state'],
-            "topology": hypothesis['topology'],
-            "player_labels": hypothesis['player_labels'],
-            'alpha': hypothesis['alpha'],
-            'log_level': "warning"
-        }
-        game = PolymatrixGame(**game_settings)
-        outcomes = []
-        for iteration, strategy in enumerate(strategies):
-            strategy = strategy[0]
-            game.play(strategy)
-            payoff = game.payoff_matrix.sum(axis=1).transpose().reshape(n,1)
-            outcomes.append(payoff)
-        y_pred = np.hstack(outcomes)
-        err = math.sqrt(mean_squared_error(y_true, y_pred))
-        return err
 
 def remove_clones(sorted_populations):
     clean_populations = []

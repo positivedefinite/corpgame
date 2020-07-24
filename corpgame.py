@@ -12,32 +12,38 @@ from collections import defaultdict
 
 class PolymatrixGame(MultiplayerGame):
 
-    def play_random(self):
-        n = len(self.players)
-        strategy_profile = [random.randint(0, 1) for i in range(n)]
-        self.play(strategy_profile)
-
-    def play(self, strategy_profile):
-        """ Wrapper method for setting a strategy profile, computing payoff and distributing it to players """
+    def play(self, strategy_profile=None):
+        """ INSTANCE METHOD
+        Wrapper for setting a strategy profile, computing payoff and distributing it to players.
+        If strategy profile is not specified, a random strategy profile is chosen.
+        """
+        if strategy_profile.all()==None:
+            strategy_profile = np.random.randint(0,2,len(self.players))
         self.set_strategy_profile(strategy_profile)
         self.get_payoff_matrix()
         self.apply_payoff_matrix()
         self.get_state()
 
-    def get_edge_payoffs(self):
-        print(self.edge_payoffs)
-        edge_dict = self.edge_payoffs
+    def get_directed_payoffs(self):
+        ''' INSTANCE METHOD Transforms a dictionary with np.array() as values to int values. '''
+        #print(self.edge_payoffs)
+        edge_dict = self.edge_payoffs.copy()
         for edge in edge_dict:
-            print(edge)
-            s = sum(edge_dict[edge])
-            if s>0:
-                edge_dict[edge] = s
+            val = edge_dict[edge]
+            # only take the positive value in the array, as that's the amount of companies going from 0 to 1 (the other direction is handled for edge (1,0))
+            if val[0]>0:
+                edge_dict[edge] = val[0]
+                assert val[1]<=0, f"val = {val}, type={type(val)}"
+            elif val[1]>0:
+                edge_dict[edge] = val[1]
+                assert val[0]<=0, f"val = {val}, type={type(val)}"
             else:
+                assert val[1]<=0 and val[0]<=0, f"val = {val}, type={type(val)}"
                 edge_dict[edge] = 0
-        self.edge_payoffs = edge_dict
+        self.directed_edge_payoffs = edge_dict
 
     def get_payoff_matrix(self):
-        """ Computes payoffs for all player pairs (edges) """
+        """ INSTANCE METHOD Computes payoffs for all player pairs (edges) """
         payoff_matrix = np.zeros((len(self.players), 2))
         log.debug(f"{self.__class__}.get_payoff_matrix() init {payoff_matrix.tolist()}")
         network_edges = self.network.edges
@@ -54,7 +60,6 @@ class PolymatrixGame(MultiplayerGame):
             f"{self.__class__}.get_payoff_matrix() final {payoff_matrix.tolist()}"
         )
         self.payoff_matrix = payoff_matrix
-        return self
 
     def pair_fractional(self, player1: int, player2: int):
         """ Computer payoff between two players (one edge) """
@@ -87,8 +92,11 @@ class PolymatrixGame(MultiplayerGame):
             )
         self.get_state()
         assert np.all((p1_payoff + p2_payoff) == 0)  # check if zero sum
+        assert (p1.label, p2.label) in self.edge_payoffs
+        assert (p2.label, p1.label) in self.edge_payoffs
         self.edge_payoffs[(p1.label, p2.label)]=p2_payoff
         self.edge_payoffs[(p2.label, p1.label)]=p1_payoff
+        log.debug(p1.label, p1.strategy, p1_payoff, p2.label, p2.strategy, p2_payoff)
         return [p1_payoff, p2_payoff]
 
     def payoff_function(self, x: int, alpha: float = 0.1, roundoff=False):
