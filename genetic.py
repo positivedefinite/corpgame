@@ -27,21 +27,23 @@ def mutate_population(population):
 
     for i, p in enumerate(population):
         new_population.append(mutate(p, i//5))
-
+    '''
     for i, p in enumerate(new_population):
         if new_population[i]['alpha']==None:
            new_population[i] = optimize_hypothesis(new_population[i]) 
+    '''
 
     return new_population
 
-def create_population(amount_of_individuals):
+def create_population(amount_of_individuals, alpha_init):
     print(f"Creating {amount_of_individuals} new hypotheses")
     population = [None]*amount_of_individuals
     for i in range(amount_of_individuals):
-        population[i] = create_hypothesis()
+        population[i] = create_hypothesis(alpha_init=alpha_init[i])
     return population
 
-def create_hypothesis():
+def create_hypothesis(alpha_init = None):
+    assert type(alpha_init) == float or type(alpha_init) == None, f"genetic.create_hypothesis() Alpha_init is {alpha_init}, not float nor None"
     hypothesis = {'starting_state': None, 'strategies': None, 'alpha': None, 'error':None, 'topology':None, 'player_labels': PLAYER_LABELS}
     def create_starting_state():
         scenario = 'real' #'simulation'
@@ -61,7 +63,7 @@ def create_hypothesis():
         return list(starting_state)
     hypothesis['starting_state'] = create_starting_state()
     hypothesis['strategies'] = [np.random.randint(0, 2, (1, n)) for i in range(0, iterations)]
-    hypothesis['alpha'] = None
+    hypothesis['alpha'] = alpha_init
     def create_topology():
         #nodes = list(range(n))
         topology = []
@@ -76,7 +78,7 @@ def mutate(hypothesis, iterations):
         hypothesis = mutate_player(hypothesis)
         hypothesis = mutate_graph(hypothesis)
     if iterations>0:
-        hypothesis['alpha'] = None
+        hypothesis = mutate_alpha(hypothesis)
         hypothesis['error'] = None
     return hypothesis
 
@@ -85,7 +87,7 @@ def eval_fun(alpha, hypothesis):
     return evaluate_edge(hypothesis) #! evaluate() for net values
 
 def optimize_hypothesis(p):
-    x0=[0.5]
+    x0=[0.2]
     bnds = [(0.0, 1.0)]
     r = scipy.optimize.minimize(eval_fun, x0, args=p, bounds=bnds, tol=0.001)
     p['alpha'] = r['x'][0]
@@ -95,7 +97,7 @@ def optimize_hypothesis(p):
 def mutate_alpha(hypothesis):
     """ unused, as we are using exact solutions """
     if np.random.randint(0,3)==1:
-        hypothesis['alpha']+=0.05-0.1*np.random.rand()
+        hypothesis['alpha']+=0.025-0.05*np.random.rand()
     if hypothesis['alpha']<=0 or hypothesis['alpha']>1:
         hypothesis['alpha']=np.random.rand()
     return hypothesis
@@ -106,6 +108,7 @@ def mutate_graph(hypothesis):
             "start_populations_matrix": hypothesis['starting_state'],
             "topology": hypothesis['topology'],
             'alpha': hypothesis['alpha'],
+            'player_labels': hypothesis['player_labels'],
             'log_level': "warning"
         }
     game = PolymatrixGame(**game_settings)

@@ -58,7 +58,7 @@ def evaluate_edges_error(hypothesis):
         0.2962962962962963,
         0.43874643874643876,
         0.5854700854700855,
-        0.5868945868945868]
+        0.5868945868945868] # computed from real-world dataset of CBM per year, each entry is year's average per edge
     for iteration, strategy in enumerate(strategies):
         #print(strategy[0])
         game.play(strategy[0])
