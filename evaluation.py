@@ -30,7 +30,7 @@ def evaluate(hypothesis):
     for iteration, strategy in enumerate(strategies):
         strategy = strategy[0]
         game.play(strategy)
-        payoff = game.payoff_matrix.sum(axis=1).transpose().reshape(n,1)
+        payoff = game.payoff_matrix.sum(axis=1).transpose().reshape(len(game.players), 1)
         outcomes.append(payoff)
     y_net_pred = np.hstack(outcomes)
     err = math.sqrt(mean_squared_error(y_net_true, y_net_pred))

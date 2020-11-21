@@ -4,7 +4,7 @@ from logger import log
 
 @plac.annotations(number_of_individuals=("Amount of players", "option", "n", int),
                     experiment_name=("Experiment name", "option", "name", str))
-def main(number_of_individuals=50, experiment_name="edgeval7"):
+def main(number_of_individuals=50, experiment_name="8"):
     print(f"True payoff matrix:\n{df_true}")
     best = 1000
     max_pops = number_of_individuals

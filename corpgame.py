@@ -1,5 +1,5 @@
 # following architecture guidelines from https://realpython.com/python-application-layouts/
-# ! Rename module to polygame
+# ! Rename module to polymatrixgame
 import os, random
 import numpy as np
 from logger import log
@@ -12,12 +12,12 @@ from collections import defaultdict
 
 class PolymatrixGame(MultiplayerGame):
 
-    def play(self, strategy_profile=None):
+    def play(self, strategy_profile=[]):
         """ INSTANCE METHOD
         Wrapper for setting a strategy profile, computing payoff and distributing it to players.
         If strategy profile is not specified, a random strategy profile is chosen.
         """
-        if strategy_profile==None: #.all()?
+        if strategy_profile==[]: #.all()?
             strategy_profile = np.random.randint(0,2,len(self.players))
         self.set_strategy_profile(strategy_profile)
         self.get_payoff_matrix()
@@ -102,7 +102,6 @@ class PolymatrixGame(MultiplayerGame):
     def payoff_function(self, x: int, alpha: float = 0.1, roundoff=False):
         """ A function that decides how much a player looses """
         # ! alpha is overriden b self.alpha
-        assert type(self.alpha)==float, f"Alpha is {self.alpha}, not float"
         y = x * self.alpha / (len(self.players) - 1)
         # print(f'Payoff function x={x},alpha={self.alpha},not rounded y={y}')
         if roundoff:

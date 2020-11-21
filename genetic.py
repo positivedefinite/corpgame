@@ -43,7 +43,7 @@ def create_population(amount_of_individuals, alpha_init):
     return population
 
 def create_hypothesis(alpha_init = None):
-    assert type(alpha_init) == float or type(alpha_init) == None, f"genetic.create_hypothesis() Alpha_init is {alpha_init}, not float nor None"
+    assert type(alpha_init) == float or type(alpha_init) == None or type(alpha_init=='NoneType'), f"genetic.create_hypothesis() Alpha_init is {type(alpha_init)}, not float nor None"
     hypothesis = {'starting_state': None, 'strategies': None, 'alpha': None, 'error':None, 'topology':None, 'player_labels': PLAYER_LABELS}
     def create_starting_state():
         scenario = 'real' #'simulation'
